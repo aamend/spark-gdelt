@@ -3,3 +3,4 @@
 target
 derby.log
 spark-warehouse
+.DS_Store
