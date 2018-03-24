@@ -5,7 +5,7 @@
     <name>gdelt-spark</name>
     <groupId>com.aamend.spark</groupId>
     <artifactId>spark-gdelt</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
     <url>https://github.com/aamend/gdelt-spark</url>
 
@@ -43,7 +43,7 @@
     <scm>
         <url>https://github.com/aamend/gdelt-spark</url>
         <connection>scm:git:git@github.com:aamend/gdelt-spark.git</connection>
-        <tag>spark-gdelt-1.0</tag>
+        <tag>gdelt</tag>
     </scm>
 
     <distributionManagement>
