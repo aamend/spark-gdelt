@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.pathogen.spark</groupId>
-    <artifactId>gdelt</artifactId>
+    <groupId>io.pathogen</groupId>
+    <artifactId>spark-gdelt</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <url>https://github.com/pathogen-io/gdelt-spark</url>
+    <url>https://github.com/aamend/gdelt-spark</url>
 
     <description>
-        GDELT Avro Parser
+        Working with GDELT files from Spark environment
     </description>
 
     <inceptionYear>2015</inceptionYear>
@@ -20,7 +20,7 @@
         <developer>
             <id>aamend</id>
             <name>Antoine Amend</name>
-            <email>antoine.amend@pathogen.io</email>
+            <email>antoine.amend@gmail.com</email>
             <organization>pathogen.io</organization>
             <timezone>0</timezone>
             <roles>
@@ -42,8 +42,8 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/pathogen-io/gdelt-spark</url>
-        <connection>scm:git:git@github.com:pathogen-io/gdelt-spark.git</connection>
+	<url>https://github.com/aamend/gdelt-spark</url>
+        <connection>scm:git:git@github.com:aamend/gdelt-spark.git</connection>
         <tag>pathogen</tag>
     </scm>
 
