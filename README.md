@@ -1,7 +1,7 @@
 # Gdelt Spark
 
 [![Build Status](https://travis-ci.org/aamend/gdelt-spark.svg?branch=master)](https://travis-ci.org/aamend/gdelt-spark) 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aamend/spark-gdelt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark-gdelt)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark/spark-gdelt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark.spark-gdelt)
 
 ## GDELT (global database of events language and tone)
 
@@ -27,7 +27,7 @@ _spark-gdelt_ project has been built for __Scala 2.11__ and __Spark 2.1.0__ and 
 
 ```xml
 <dependency>
-  <groupId>com.aamend</groupId>
+  <groupId>com.aamend.spark</groupId>
   <artifactId>spark-gdelt</artifactId>
   <version>x.y.z</version>
 </dependency>
@@ -36,7 +36,7 @@ _spark-gdelt_ project has been built for __Scala 2.11__ and __Spark 2.1.0__ and 
 Also available as a [spark package](https://spark-packages.org/package/aamend/spark-gdelt), include this package in your Spark Applications as follows
 
 ```bash
-> $SPARK_HOME/bin/spark-shell --packages com.aamend:spark-gdelt:x.y.z
+> $SPARK_HOME/bin/spark-shell --packages com.aamend.spark:spark-gdelt:x.y.z
 ```
 
 ### Usage
