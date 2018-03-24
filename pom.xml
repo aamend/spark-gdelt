@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>gdelt-spark</name>
-    <groupId>com.aamend</groupId>
+    <groupId>com.aamend.spark</groupId>
     <artifactId>spark-gdelt</artifactId>
     <version>1.1-SNAPSHOT</version>
 
