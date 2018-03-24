@@ -8,21 +8,22 @@
 ![gdelt-spark](/images/gdelt.png)
 
 [GDELT Project](https://www.gdeltproject.org/): 
-*The GDELT project monitors the world's broadcast, print, and web news from nearly every corner of every country in over 100 languages and identifies the people, locations, organizations, themes, sources, emotions, counts, quotes, images and events driving our global society every second of every day, creating a free open platform for computing on the entire world.
+*The GDELT project monitors the world's broadcast, print, and web news from nearly every corner of every country in over 100 languages and identifies the people, locations, organizations, themes, sources, emotions, counts, quotes, images and events driving our global society every second of every day, creating a free open platform for computing on the entire world.*
 
-The GDELT universe being quite large, its data format is by essence complex and convoluted. Official documentation can be found:
+The GDELT universe being quite large, its data format is by essence complex and convoluted. Official documentation can be found here:
 * [http://data.gdeltproject.org/documentation/GDELT-Data_Format_Codebook.pdf](http://data.gdeltproject.org/documentation/GDELT-Data_Format_Codebook.pdf)
 * [http://data.gdeltproject.org/documentation/GDELT-Global_Knowledge_Graph_Codebook.pdf](http://data.gdeltproject.org/documentation/GDELT-Global_Knowledge_Graph_Codebook.pdf)
 * [http://data.gdeltproject.org/documentation/CAMEO.Manual.1.1b3.pdf](http://data.gdeltproject.org/documentation/CAMEO.Manual.1.1b3.pdf)
 
 ## gdelt-spark
 
-This project has been built to make GDELT v2 environment easy to load on a Spark based environment. 
-While the `1.0` version comes with a GDELT data model (case classes), a set of parsers and all its reference data, it is planned to enrich this library with advance analytics and libraries I gathered / created over the past few years.
+This project has been built to make [GDELT v2](https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/) environment easy to load on a Spark based environment. 
+While the `1.0` version comes with a GDELT data model (case classes), a set of parsers and all its reference data, it is planned to enrich this library with advance analytics and libraries I gathered / created over the past few years. 
+I also plan to provide GDELT near realtime support as Spark structured streaming. 
 
 ### Getting Started
 
-_spark-gdelt_ project has been built for __Scala 2.11__ and __Spark 2.1.0__ and is available on Maven central as a Spark package.
+_spark-gdelt_ project has been built for __Scala 2.11__ and __Spark 2.1.0__ and is available on Maven central.
 
 ```xml
 <dependency>
@@ -32,7 +33,7 @@ _spark-gdelt_ project has been built for __Scala 2.11__ and __Spark 2.1.0__ and 
 </dependency>
 ```
 
-Available as a [spark package](https://spark-packages.org/package/aamend/spark-gdelt), include this package in your Spark Applications as follows
+Also available as a [spark package](https://spark-packages.org/package/aamend/spark-gdelt), include this package in your Spark Applications as follows
 
 ```bash
 > $SPARK_HOME/bin/spark-shell --packages com.aamend.spark:spark-gdelt:x.y.z
@@ -40,7 +41,8 @@ Available as a [spark package](https://spark-packages.org/package/aamend/spark-g
 
 ### Usage
 
-Loading core GDELT files (unzipped) as `Dataset`
+### GDELT core feeds
+Loading core GDELT files (unzipped) as `Dataset[_]`. Note we support both english and translingual files, V2 only. 
 
 ```scala
 import com.aamend.spark.gdelt._
@@ -81,7 +83,7 @@ Here is an example of `Dataset[Event]`
 +---------+----------+--------------------+--------------------+------+--------------+------------------+------------------+--------------------+---------+-----------+----------+-----------+-----------+--------------------+--------------------+--------------------+----------+--------------------+
 ```
 
-Loading all reference data
+#### GDELT reference data
 
 ```scala
 val countryCodes: Dataset[CountryCode] = spark.loadCountryCodes
@@ -94,7 +96,7 @@ val cameoReligion: Dataset[CameoCode] = spark.loadCameoReligionCodes
 val cameoCountry: Dataset[CameoCode] = spark.loadCameoCountryCodes
 ```
 
-Though reference data fits in memory, having as `Dataset` makes them really convenient to operate above core feeds through a series of JOIN operations.
+Though reference data fits in memory, `Dataset[_]` makes it really convenient to enrich above core feeds.
 
 Here is an example of `Dataset[CameoCode]`
 
@@ -124,6 +126,10 @@ Here is an example of `Dataset[CameoCode]`
 |      HRI|        human rights|
 +---------+--------------------+
 ```
+
+## Version
+
+1.0
 
 ## Authors
 
