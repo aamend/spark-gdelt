@@ -50,8 +50,6 @@ import com.aamend.spark.gdelt._
 val gdeltEventDS: Dataset[Event] = spark.read.gdeltEvent("/path/to/event.csv")
 val gdeltGkgDS: Dataset[GKGEvent] = spark.read.gdeltGkg("/path/to/gkg.csv")
 val gdeltMention: Dataset[Mention] = spark.read.gdeltMention("/path/to/mention.csv")
-
-gdeltEventDS.show()
 ```
 
 Here is an example of `Dataset[Event]`
@@ -86,6 +84,8 @@ Here is an example of `Dataset[Event]`
 #### GDELT reference data
 
 ```scala
+import com.aamend.spark.gdelt._
+
 val countryCodes: Dataset[CountryCode] = spark.loadCountryCodes
 val gcam: Dataset[GcamCode] = spark.loadGcams
 val cameoEvent: Dataset[CameoCode] = spark.loadCameoEventCodes
@@ -95,8 +95,6 @@ val cameoEthnic: Dataset[CameoCode] = spark.loadCameoEthnicCodes
 val cameoReligion: Dataset[CameoCode] = spark.loadCameoReligionCodes
 val cameoCountry: Dataset[CameoCode] = spark.loadCameoCountryCodes
 ```
-
-Though reference data fits in memory, `Dataset[_]` makes it really convenient to enrich above core feeds.
 
 Here is an example of `Dataset[CameoCode]`
 
