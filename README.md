@@ -36,7 +36,7 @@ _spark-gdelt_ project has been built for __Scala 2.11__ and __Spark 2.1.0__ and 
 Also available as a [spark package](https://spark-packages.org/package/aamend/gdelt-spark), include this package in your Spark Applications as follows
 
 ```bash
-> $SPARK_HOME/bin/spark-shell --packages com.aamend.spark:spark-gdelt:x.y.z
+spark-shell --packages com.aamend.spark:gdelt-spark:x.y.z
 ```
 
 ### Usage
