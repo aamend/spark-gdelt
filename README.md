@@ -18,8 +18,8 @@ The GDELT universe being quite large, its data format is by essence complex and 
 ## gdelt-spark
 
 This project has been built to make [GDELT v2](https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/) environment easy to load on a Spark based environment. 
-While the `1.0` version comes with a GDELT data model (case classes), a set of parsers and all its reference data, it is planned to enrich this library with advance analytics and libraries I gathered / created over the past few years. 
-I also plan to provide GDELT near realtime support as Spark structured streaming. 
+While the `v1.0` version only came with a GDELT data model (case classes), a set of parsers and all its reference data, `v2.0` embeds the [Goose](https://github.com/GravityLabs/goose/wiki) library packaged for `Scala 2.11`. It is planned to later enrich this library with advance analytics and libraries I gathered / created over the past few years. 
+
 
 ### Getting Started
 
@@ -36,7 +36,7 @@ _spark-gdelt_ project has been built for __Scala 2.11__ and __Spark 2.1.0__ and 
 Also available as a [spark package](https://spark-packages.org/package/aamend/gdelt-spark), include this package in your Spark Applications as follows
 
 ```bash
-spark-shell --packages com.aamend.spark:gdelt-spark:x.y.z
+spark-shell --packages com.aamend.spark:spark-gdelt:x.y.z
 ```
 
 ### Usage
@@ -125,9 +125,113 @@ Here is an example of `Dataset[CameoCode]`
 +---------+--------------------+
 ```
 
+#### Accessing HTML content
+
+Spark GDELT comes with its embedded [Goose](https://github.com/GravityLabs/goose/wiki) scraper to access original content behind GDELT articles. 
+We embedded this library in order to 
+
+1. make it `Scala 2.11` compatible
+2. tune it towards the extraction of news articles
+3. scale it for spark dataframe
+
+Interacting with Goose library is fairly easy
+
+```scala
+def getGooseScraper(): Goose = {
+    val conf: Configuration = new Configuration
+    conf.setEnableImageFetching(false)
+    conf.setBrowserUserAgent(userAgent)
+    conf.setConnectionTimeout(connectionTimeout)
+    conf.setSocketTimeout(socketTimeout)
+    new Goose(conf)
+}
+
+val url = "http://www.bbc.co.uk/news/entertainment-arts-35278872"
+val goose: Goose = getGooseScraper()
+val article: Article = goose.extractContent(url)
+```
+
+Scraping news articles from URLs in above datasets is done via the excellent Spark pipelines framework (spark-ml)
+
+```scala
+val contentFetcher = new ContentFetcher()
+  .setUrlColumn("sourceURL")
+  .setAnnotators(
+    Map(
+      "title" -> "title",
+      "content" -> "column",
+      "description" -> "description",
+      "keywords" -> "keywords",
+      "publishDate" -> "publishDate"
+    )
+  )
+  .setUserAgent("Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8")
+  .setConnectionTimeout(1000)
+  .setSocketTimeout(1000)
+
+val pipeline = new Pipeline().setStages(Array(contentFetcher))
+val model = pipeline.fit(df)
+val articles = model.transform(df)
+articles.show()
+```
+
+We introduce the concept of `annotator` as what we expect Goose parser to return. So far, we only support the following
+
++ `title`: The title of the news article
++ `content`: The core content of news article with all junk and HTML tag removed
++ `description`: The Meta description if available in HTML header
++ `keywords`: The Meta keywords if available in HTML header
++ `publishDate`: The publishing data if available in HTML header
+
+The resulting dataframe will be as follows
+
+```
+...+--------------------+--------------------+--------------------+--------------------+--------------------+------------+
+...|           sourceUrl|         description|             content|            keywords|               title| publishDate|
+...+--------------------+--------------------+--------------------+--------------------+--------------------+------------+
+...|https://www.thegu...|Parliament passes...|Mariano Rajoy, on...|[MARIANO RAJOY, S...|Mariano Rajoy ous...|  2018-06-01|
+...+--------------------+--------------------+--------------------+--------------------+--------------------+------------+
+```
+
+#### Fueling data science use cases
+
+Reason of embedding Goose extraction in Spark pipeline is to integrate HTML content extraction to existing Spark ML functionalities. 
+In below example, we extract content of web articles, tokenize words and train a Word2Vec model
+
+```scala
+val contentFetcher = new ContentFetcher()
+  .setUrlColumn("url")
+  .setAnnotators(Map("content" -> "content"))
+
+val tokenizer = new Tokenizer()
+  .setInputCol("content")
+  .setOutputCol("words")
+
+val word2Vec = new Word2Vec()
+  .setInputCol("words")
+  .setOutputCol("features")
+
+val pipeline = new Pipeline().setStages(Array(contentFetcher, tokenizer, word2Vec))
+val model = pipeline.fit(df)
+val words = model.transform(df)
+words.show()
+```
+
+Resulting dataframe as follows
+
+```
++--------------------+--------------------+--------------------+--------------------+
+|                 url|             content|               words|            features|
++--------------------+--------------------+--------------------+--------------------+
+|https://www.thegu...|Mariano Rajoy, on...|[mariano, rajoy,,...|[-4.4920501000283...|
++--------------------+--------------------+--------------------+--------------------+
+```
+
+
 ## Version
 
-1.0
++ 1.0 - Basic parser and reference data
++ 2.0 - Adding Goose library packaged for Spark / Scala 2.11
 
 ## Authors
 

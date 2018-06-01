@@ -3,9 +3,50 @@ package com.aamend.spark
 import java.sql.{Date, Timestamp}
 
 import com.aamend.spark.gdelt.reference.{CameoCodes, CountryCodes, GcamCodes}
+import com.gravity.goose.Goose
+import org.apache.commons.lang.StringUtils
 import org.apache.spark.sql._
 
+import scala.util.Try
+
 package object gdelt {
+
+  val ANNOTATOR_TITLE = "title"
+  val ANNOTATOR_CONTENT = "content"
+  val ANNOTATOR_DESCRIPTION = "description"
+  val ANNOTATOR_KEYWORDS = "keywords"
+  val ANNOTATOR_PUBLISH_DATE = "publishDate"
+  val ANNOTATOR_IMAGE_URL = "imageURL"
+  val ANNOTATOR_IMAGE_BASE64 = "imageBase64"
+
+  // List of supported annotators
+  val ANNOTATORS = Array(
+    ANNOTATOR_TITLE,
+    ANNOTATOR_CONTENT,
+    ANNOTATOR_DESCRIPTION,
+    ANNOTATOR_KEYWORDS,
+    ANNOTATOR_PUBLISH_DATE,
+    ANNOTATOR_IMAGE_URL,
+    ANNOTATOR_IMAGE_BASE64
+  )
+
+  def scrapeContent(it: Iterator[String], goose: Goose): Iterator[Content] = {
+    it.map(url => {
+      Try {
+        val article = goose.extractContent(url)
+        Content(
+          url = url,
+          title = if (StringUtils.isNotEmpty(article.title)) Some(article.title) else None,
+          content = if (StringUtils.isNotEmpty(article.cleanedArticleText)) Some(article.cleanedArticleText.replaceAll("\\n+", "\n")) else None,
+          description = if (StringUtils.isNotEmpty(article.metaDescription)) Some(article.metaDescription) else None,
+          keywords = if (StringUtils.isNotEmpty(article.metaKeywords)) article.metaKeywords.split(",").map(_.trim.toUpperCase) else Array.empty[String],
+          publishDate = if (article.publishDate != null) Some(new Date(article.publishDate.getTime)) else None,
+          imageURL = if (article.topImage != null && StringUtils.isNotEmpty(article.topImage.imageSrc)) Some(article.topImage.imageSrc) else None,
+          imageBase64 = if (article.topImage != null && StringUtils.isNotEmpty(article.topImage.imageBase64)) Some(article.topImage.imageBase64) else None
+        )
+      } getOrElse Content(url)
+    })
+  }
 
   /**
     *
@@ -319,53 +360,6 @@ package object gdelt {
                             charOffset: Int = 0
                           )
 
-  case class Quotation(
-                        charLength: Int = 0,
-                        verb: String = "",
-                        quote: String = "",
-                        charOffset: Int = 0
-                      )
-
-  case class Name(
-                   name: String = "",
-                   charOffset: Int = 0
-                 )
-
-  case class Amount(
-                     amount: Double = 0.0d,
-                     amountType: String = "",
-                     charOffset: Int = 0
-                   )
-
-  case class TranslationInfo(
-                              SRCLC: String = "",
-                              ENG: String = ""
-                            )
-
-  case class CountryCode(
-                          iso: String = "",
-                          iso3: String = "",
-                          isoNumeric: String = "",
-                          fips: String = "",
-                          country: String = ""
-                        )
-
-  case class CameoCode(
-                        cameoCode: String,
-                        cameoValue: String
-                      )
-
-  case class GcamCode(
-                       gcamCode: String = "",
-                       dictionaryId: String = "",
-                       dimensionId: String = "",
-                       dictionaryType: String = "",
-                       languageCode: String = "",
-                       dictionaryHumanName: String = "",
-                       dimensionHumanName: String = "",
-                       dictionaryCitation: String = ""
-                     )
-
   implicit class GdeltSpark(dfReader: DataFrameReader) {
     def gdeltGkg(inputDir: String): Dataset[GKGEvent] = {
       val ds = dfReader.textFile(inputDir)
@@ -420,5 +414,63 @@ package object gdelt {
       CameoCodes.loadCountryCode(spark)
     }
   }
+
+  case class Quotation(
+                        charLength: Int = 0,
+                        verb: String = "",
+                        quote: String = "",
+                        charOffset: Int = 0
+                      )
+
+  case class Name(
+                   name: String = "",
+                   charOffset: Int = 0
+                 )
+
+  case class Amount(
+                     amount: Double = 0.0d,
+                     amountType: String = "",
+                     charOffset: Int = 0
+                   )
+
+  case class TranslationInfo(
+                              SRCLC: String = "",
+                              ENG: String = ""
+                            )
+
+  case class CountryCode(
+                          iso: String = "",
+                          iso3: String = "",
+                          isoNumeric: String = "",
+                          fips: String = "",
+                          country: String = ""
+                        )
+
+  case class CameoCode(
+                        cameoCode: String,
+                        cameoValue: String
+                      )
+
+  case class GcamCode(
+                       gcamCode: String = "",
+                       dictionaryId: String = "",
+                       dimensionId: String = "",
+                       dictionaryType: String = "",
+                       languageCode: String = "",
+                       dictionaryHumanName: String = "",
+                       dimensionHumanName: String = "",
+                       dictionaryCitation: String = ""
+                     )
+
+  case class Content(
+                      url: String,
+                      title: Option[String] = None,
+                      content: Option[String] = None,
+                      description: Option[String] = None,
+                      keywords: Array[String] = Array.empty[String],
+                      publishDate: Option[Date] = None,
+                      imageURL: Option[String] = None,
+                      imageBase64: Option[String] = None
+                    )
 
 }

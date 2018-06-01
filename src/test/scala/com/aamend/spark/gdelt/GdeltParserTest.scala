@@ -6,19 +6,13 @@ import scala.io.Source
 
 class GdeltParserTest extends SparkSpec with Matchers {
 
-  // I simply test all my dataframes can be loaded, no exception should be thrown
+//   I simply test all my dataframes can be loaded, no exception should be thrown
   sparkTest("loading GDELT universe") { spark =>
     import spark.implicits._
     Source.fromInputStream(this.getClass.getResourceAsStream("gkg.csv")).getLines().toSeq.toDS().map(GdeltParser.parseGkg).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("events.csv")).getLines().toSeq.toDS().map(GdeltParser.parseEvent).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("mentions.csv")).getLines().toSeq.toDS().map(GdeltParser.parseMention).show()
   }
-
-  sparkTest("loading GDELT events") { spark =>
-    import spark.implicits._
-    Source.fromInputStream(this.getClass.getResourceAsStream("events.csv")).getLines().toSeq.toDS().map(GdeltParser.parseEvent).select("actor2Geo.geoName").show()
-  }
-
 
   // I simply test all my dataframes can be loaded, no exception should be thrown
   sparkTest("loading GDELT reference data") { spark =>

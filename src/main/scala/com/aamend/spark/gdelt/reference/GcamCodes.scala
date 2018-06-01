@@ -9,7 +9,7 @@ object GcamCodes {
 
   def load(spark: SparkSession): Dataset[GcamCode] = {
     import spark.implicits._
-    Source.fromInputStream(this.getClass.getResourceAsStream("/gcam.txt")).getLines().toSeq.drop(1).map(line => {
+    Source.fromInputStream(this.getClass.getResourceAsStream("gcam.txt")).getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       GcamCode(
         gcamCode = tokens(0),
