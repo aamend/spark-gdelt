@@ -18,8 +18,8 @@ The GDELT universe being quite large, its data format is by essence complex and 
 ## gdelt-spark
 
 This project has been built to make [GDELT v2](https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/) environment easy to load on a Spark based environment. 
-While the `v1.0` version only came with a GDELT data model (case classes), a set of parsers and all its reference data, `v2.0` embeds the [Goose](https://github.com/GravityLabs/goose/wiki) library packaged for `Scala 2.11`. It is planned to later enrich this library with advance analytics and libraries I gathered / created over the past few years. 
-
+While the `v1.0` version only came with a GDELT data model (case classes), a set of parsers and all its reference data, `v2.0` embeds the [Goose](https://github.com/GravityLabs/goose/wiki) library packaged for `Scala 2.11`. 
+It is planned to later enrich this library with advance analytics and libraries I gathered / created over the past few years. 
 
 ### Getting Started
 
@@ -42,7 +42,8 @@ spark-shell --packages com.aamend.spark:spark-gdelt:x.y.z
 ### Usage
 
 ### GDELT core feeds
-Loading core GDELT files (unzipped) as `Dataset[_]`. Note we support both english and translingual files, V2 only. 
+Loading core GDELT files (unzipped) as `Dataset[_]`. 
+Note we support both english and translingual files, V2 only. 
 
 ```scala
 import com.aamend.spark.gdelt._
@@ -125,83 +126,165 @@ Here is an example of `Dataset[CameoCode]`
 +---------+--------------------+
 ```
 
-#### Accessing HTML content
+### Accessing HTML content
 
-Spark GDELT comes with its embedded [Goose](https://github.com/GravityLabs/goose/wiki) scraper to access original content behind GDELT articles. 
-We embedded this library in order to 
+The main difference between an average and an expert data scientist is the level of curiosity and creativity employed in extracting the value latent in the data. 
+You could build a simple model on top of GDELT, or you could notice and leverage all these URLs mentioned, scrape that content, and use these extended results to discover new insights that exceed the original questions.
 
-1. make it `Scala 2.11` compatible
-2. tune it towards the extraction of news articles
-3. scale it for spark dataframe
+We delegate this logic to the excellent Scala library [Goose](https://github.com/GravityLabs/goose/wiki) 
 
-Interacting with Goose library is fairly easy
+I decided to embed my own `Goose` library in that project for the following reasons
+
+1. to make it `Scala 2.11` compatible (currently `2.9`)
+2. to start tuning it towards the extraction of news content and not generic HTML
+3. to start cleaning its messy code base (sorry guys, love this library but code is a mess!)
+4. to scale it for spark (distributed news scanner)
+
+##### The Goose library
+
+Interacting with the Goose library is fairly easy
 
 ```scala
-def getGooseScraper(): Goose = {
-    val conf: Configuration = new Configuration
-    conf.setEnableImageFetching(false)
-    conf.setBrowserUserAgent(userAgent)
-    conf.setConnectionTimeout(connectionTimeout)
-    conf.setSocketTimeout(socketTimeout)
-    new Goose(conf)
-}
+import com.gravity.goose.{Configuration, Goose}
+
+val conf: Configuration = new Configuration
+conf.setEnableImageFetching(false)
+conf.setBrowserUserAgent("Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8")
+conf.setConnectionTimeout(1000)
+conf.setSocketTimeout(1000)
 
 val url = "http://www.bbc.co.uk/news/entertainment-arts-35278872"
-val goose: Goose = getGooseScraper()
-val article: Article = goose.extractContent(url)
+val goose: Goose = new Goose(conf)
+val article = goose.extractContent(url)
 ```
 
-Scraping news articles from URLs in above datasets is done via the excellent Spark pipelines framework (spark-ml)
+##### Spark Pipeline
+
+Scraping news articles from URLs in above datasets is done via a Spark [ML pipeline](https://spark.apache.org/docs/2.2.0/ml-pipeline.html)
 
 ```scala
+import com.aamend.spark.gdelt.ContentFetcher
+
 val contentFetcher = new ContentFetcher()
-  .setUrlColumn("sourceURL")
-  .setAnnotators(
-    Map(
-      "title" -> "title",
-      "content" -> "column",
-      "description" -> "description",
-      "keywords" -> "keywords",
-      "publishDate" -> "publishDate"
-    )
-  )
+  .setInputCol("sourceUrl")
+  .setOutputTitleCol("title")
+  .setOutputContentCol("content")
+  .setOutputKeywordsCol("keywords")
+  .setOutputPublishDateCol("publishDate")
+  .setOutputDescriptionCol("description")
   .setUserAgent("Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8")
   .setConnectionTimeout(1000)
   .setSocketTimeout(1000)
 
-val pipeline = new Pipeline().setStages(Array(contentFetcher))
-val model = pipeline.fit(df)
-val articles = model.transform(df)
-articles.show()
+val contentDF = contentFetcher.transform(gdeltEventDS)
+contentDF.show()
 ```
 
-We introduce the concept of `annotator` as what we expect Goose parser to return. So far, we only support the following
-
-+ `title`: The title of the news article
-+ `content`: The core content of news article with all junk and HTML tag removed
-+ `description`: The Meta description if available in HTML header
-+ `keywords`: The Meta keywords if available in HTML header
-+ `publishDate`: The publishing data if available in HTML header
-
-The resulting dataframe will be as follows
+The resulting dataframe is as follows
 
 ```
-...+--------------------+--------------------+--------------------+--------------------+--------------------+------------+
-...|           sourceUrl|         description|             content|            keywords|               title| publishDate|
-...+--------------------+--------------------+--------------------+--------------------+--------------------+------------+
-...|https://www.thegu...|Parliament passes...|Mariano Rajoy, on...|[MARIANO RAJOY, S...|Mariano Rajoy ous...|  2018-06-01|
-...+--------------------+--------------------+--------------------+--------------------+--------------------+------------+
++--------------------+--------------------+--------------------+--------------------+--------------------+------------+
+|           sourceUrl|         description|             content|            keywords|               title| publishDate|
++--------------------+--------------------+--------------------+--------------------+--------------------+------------+
+|https://www.thegu...|Parliament passes...|Mariano Rajoy, on...|[MARIANO RAJOY, S...|Mariano Rajoy ous...|  2018-06-01|
++--------------------+--------------------+--------------------+--------------------+--------------------+------------+
 ```
+
+##### Fetching Images
+
+With a proper installation of [imagemagick](http://www.imagemagick.org/script/index.php), this library can even detect the most representative picture of a given article. 
+Downloading GDELT image header for each article opens up lots of data science opportunities (face recognition, fake news / propaganda detection).
+This, however, requires an installation of `imagemagick` on all executors across your Spark cluster.
+
+```scala
+import com.aamend.spark.gdelt.ContentFetcher
+
+val contentFetcher = new ContentFetcher()
+  .setInputCol("sourceUrl")
+  .setOutputImageUrlCol("imageUrl")
+  .setOutputImageBase64Col("imageBase64")
+  .setImagemagickConvert("/usr/local/bin/convert")  
+  .setImagemagickIdentify("/usr/local/bin/identify")
+  
+val contentDF = contentFetcher.transform(gdeltEventDS)
+println(contentDF.rdd.first.getAs[String]("imageBase64"))
+```
+
+The main image is represented as base64 in data URI
+
+```
+data:image/jpeg;width=300;height=180;base64,/9j/4AAQSkZJRgABAQEASABIAA...
+```
+
+You can validate it via any online viewer such as [https://codebeautify.org/base64-to-image-converter](https://codebeautify.org/base64-to-image-converter)
+
+![article](/images/article.jpeg)
+
+*source: https://www.theguardian.com/world/2018/jun/01/mariano-rajoy-ousted-as-spain-prime-minister*
+
+##### Parameters
+
++ `setInputCol(s: String)`
+
+Mandatory, the input column containing URLs to fetch
+
++ `setOutputTitleCol(s: String)`
+
+Optional, the output column to store article title - title will not be fetched if not specified
+
++ `setOutputContentCol(s: String)`
+
+Optional, the output column to store article content - content will not be fetched if not specified
+
++ `setOutputKeywordsCol(s: String)`
+
+Optional, the output column to store article metadata keyword - keywords will not be fetched if not specified
+
++ `setOutputPublishDateCol(s: String)` 
+
+Optional, the output column to store article metadata publishDate - date will not be fetched if not specified
+
++ `setOutputDescriptionCol(s: String)`
+
+Optional, the output column to store article metadata description - description will not be fetched if not specified
+
++ `setOutputImageUrlCol(s: String)`
+
+Optional, the output column to store article main image URL - image fetching will be disabled if not specified
+
++ `setOutputImageBase64Col(s: String)`
+
+Optional, the output column to store article main image data URI - image fetching will be disabled if not specified
+
++ `setImagemagickConvert(s: String)`
+
+Optional, the path to imagemagick `convert` executable on every spark executors, not used if image fetching is disabled, default: `/usr/local/bin/convert`
+
++ `setImagemagickIdentify(s: String)`
+
+Optional, the path to imagemagick `identify` executable on every spark executors, not used if image fetching is disabled, default: `/usr/local/bin/identify`
+
++ `setUserAgent(s: String)` 
+
+Optional, the user agent to use in Goose HTTP requests, default: `Mozilla/5.0`
+
++ `setConnectionTimeout(i: Int)`
+
+Optional, the connection timeout, in milliseconds, default: `1000`
+
++ `setSocketTimeout(i: Int)`
+
+Optional, the socket timeout, in milliseconds, default: `1000`
 
 #### Fueling data science use cases
 
-Reason of embedding Goose extraction in Spark pipeline is to integrate HTML content extraction to existing Spark ML functionalities. 
-In below example, we extract content of web articles, tokenize words and train a Word2Vec model
+The main reason I decided to embed a Goose extraction as a ML pipeline is to integrate news content with existing Spark ML functionality. 
+In below example, we extract content of web articles, tokenize words and train a [Word2Vec](https://spark.apache.org/docs/2.2.0/ml-features.html#word2vec) model
 
 ```scala
 val contentFetcher = new ContentFetcher()
-  .setUrlColumn("url")
-  .setAnnotators(Map("content" -> "content"))
+  .setInputCol("sourceUrl")
+  .setOutputContentCol("content")
 
 val tokenizer = new Tokenizer()
   .setInputCol("content")
@@ -211,22 +294,12 @@ val word2Vec = new Word2Vec()
   .setInputCol("words")
   .setOutputCol("features")
 
-val pipeline = new Pipeline().setStages(Array(contentFetcher, tokenizer, word2Vec))
+val pipeline = new Pipeline()
+  .setStages(Array(contentFetcher, tokenizer, word2Vec))
+  
 val model = pipeline.fit(df)
 val words = model.transform(df)
-words.show()
 ```
-
-Resulting dataframe as follows
-
-```
-+--------------------+--------------------+--------------------+--------------------+
-|                 url|             content|               words|            features|
-+--------------------+--------------------+--------------------+--------------------+
-|https://www.thegu...|Mariano Rajoy, on...|[mariano, rajoy,,...|[-4.4920501000283...|
-+--------------------+--------------------+--------------------+--------------------+
-```
-
 
 ## Version
 

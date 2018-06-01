@@ -359,7 +359,7 @@ trait DocumentCleaner {
 
     }
     // flush out anything still remaining
-    if (replacementText.size > 0) {
+    if (replacementText.nonEmpty) {
       val newNode = getFlushedBuffer(replacementText, doc)
       nodesToReturn += newNode
       replacementText.clear()

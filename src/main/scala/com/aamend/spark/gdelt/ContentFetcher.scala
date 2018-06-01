@@ -50,35 +50,35 @@ class ContentFetcher(override val uid: String) extends Transformer with ContentF
 
   setDefault(connectionTimeout -> 10000)
 
-  def setInputColumn(value: String): this.type = set(inputColumn, value)
+  def setInputCol(value: String): this.type = set(inputColumn, value)
 
   setDefault(inputColumn -> "sourceURL")
 
-  def setOutputContentColumn(value: String): this.type = set(outputContentColumn, value)
+  def setOutputContentCol(value: String): this.type = set(outputContentColumn, value)
 
   setDefault(outputContentColumn -> "")
 
-  def setOutputTitleColumn(value: String): this.type = set(outputTitleColumn, value)
+  def setOutputTitleCol(value: String): this.type = set(outputTitleColumn, value)
 
   setDefault(outputTitleColumn -> "")
 
-  def setOutputDescriptionColumn(value: String): this.type = set(outputDescriptionColumn, value)
+  def setOutputDescriptionCol(value: String): this.type = set(outputDescriptionColumn, value)
 
   setDefault(outputDescriptionColumn -> "")
 
-  def setOutputKeywordsColumn(value: String): this.type = set(outputKeywordsColumn, value)
+  def setOutputKeywordsCol(value: String): this.type = set(outputKeywordsColumn, value)
 
   setDefault(outputKeywordsColumn -> "")
 
-  def setOutputPublishDateColumn(value: String): this.type = set(outputPublishDateColumn, value)
+  def setOutputPublishDateCol(value: String): this.type = set(outputPublishDateColumn, value)
 
   setDefault(outputPublishDateColumn -> "")
 
-  def setOutputImageUrlColumn(value: String): this.type = set(outputImageUrlColumn, value)
+  def setOutputImageUrlCol(value: String): this.type = set(outputImageUrlColumn, value)
 
   setDefault(outputImageUrlColumn -> "")
 
-  def setOutputImageBase64Column(value: String): this.type = set(outputImageBase64Column, value)
+  def setOutputImageBase64Col(value: String): this.type = set(outputImageBase64Column, value)
 
   setDefault(outputImageBase64Column -> "")
 

@@ -6,7 +6,7 @@ import scala.io.Source
 
 class GdeltParserTest extends SparkSpec with Matchers {
 
-//   I simply test all my dataframes can be loaded, no exception should be thrown
+  //   I simply test all my dataframes can be loaded, no exception should be thrown
   sparkTest("loading GDELT universe") { spark =>
     import spark.implicits._
     Source.fromInputStream(this.getClass.getResourceAsStream("gkg.csv")).getLines().toSeq.toDS().map(GdeltParser.parseGkg).show()
