@@ -9,7 +9,7 @@ object CountryCodes {
 
   def load(spark: SparkSession): Dataset[CountryCode] = {
     import spark.implicits._
-    Source.fromInputStream(this.getClass.getResourceAsStream("countryInfo.txt")).getLines().toSeq.drop(1).map(line => {
+    Source.fromInputStream(this.getClass.getResourceAsStream("countryInfo.txt"), "UTF-8").getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       CountryCode(
         iso = tokens(0),
