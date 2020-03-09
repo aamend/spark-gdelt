@@ -1,9 +1,13 @@
 package com.aamend.spark.gdelt
 
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.FunSuite
 
 trait SparkSpec extends FunSuite {
+
+  Logger.getLogger("org").setLevel(Level.OFF)
+  Logger.getLogger("akka").setLevel(Level.OFF)
 
   def sparkTest(name: String)(f: SparkSession => Unit): Unit = {
 

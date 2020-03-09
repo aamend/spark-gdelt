@@ -36,9 +36,9 @@ package object gdelt {
         val article = goose.extractContent(url)
         Content(
           url = url,
-          title = if (StringUtils.isNotEmpty(article.title)) Some(article.title) else None,
+          title = Some(article.title).filter(StringUtils.isNotEmpty),
           content = if (StringUtils.isNotEmpty(article.cleanedArticleText)) Some(article.cleanedArticleText.replaceAll("\\n+", "\n")) else None,
-          description = if (StringUtils.isNotEmpty(article.metaDescription)) Some(article.metaDescription) else None,
+          description = Some(article.metaDescription).filter(StringUtils.isNotEmpty),
           keywords = if (StringUtils.isNotEmpty(article.metaKeywords)) article.metaKeywords.split(",").map(_.trim.toUpperCase) else Array.empty[String],
           publishDate = if (article.publishDate != null) Some(new Date(article.publishDate.getTime)) else None,
           imageURL = if (article.topImage != null && StringUtils.isNotEmpty(article.topImage.imageSrc)) Some(article.topImage.imageSrc) else None,
