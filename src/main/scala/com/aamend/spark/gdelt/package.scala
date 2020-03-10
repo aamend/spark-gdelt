@@ -367,14 +367,32 @@ package object gdelt {
       ds.map(GdeltParser.parseGkg)
     }
 
+    def gdeltGkg(inputPaths: String*): Dataset[GKGEvent] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseGkg)
+    }
+
     def gdeltEvent(inputDir: String): Dataset[Event] = {
       val ds = dfReader.textFile(inputDir)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseEvent)
     }
 
+    def gdeltEvent(inputPaths: String*): Dataset[Event] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseEvent)
+    }
+
     def gdeltMention(inputDir: String): Dataset[Mention] = {
       val ds = dfReader.textFile(inputDir)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseMention)
+    }
+
+    def gdeltMention(inputPaths: String*): Dataset[Mention] = {
+      val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseMention)
     }
