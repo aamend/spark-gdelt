@@ -138,7 +138,7 @@ object GdeltParser {
         eventId = tokens(0).toLong,
         eventTime = new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(1)).getTime),
         mentionTime = new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(2)).getTime),
-        mentionType = sourceCollectionIdentifier(tokens(3).toInt),
+        mentionType = buildSourceCollectionIdentifier(tokens(3)), 
         mentionSourceName = tokens(4),
         mentionIdentifier = tokens(5),
         sentenceId = tokens(6).toInt,
@@ -298,7 +298,7 @@ object GdeltParser {
 
   private def buildPersons(str: String) = str.split(";").toList
 
-  private def buildSourceCollectionIdentifier(str: String) = sourceCollectionIdentifier(str.toInt)
+  private def buildSourceCollectionIdentifier(str: String) = Try(sourceCollectionIdentifier(str.toInt)).getOrElse(sourceCollectionIdentifier(-1))
 
   private def buildEnhancedLocations(str: String) = {
     str.split(";").map(buildEnhancedLocation).filter(_.isDefined).map(_.get).toList
