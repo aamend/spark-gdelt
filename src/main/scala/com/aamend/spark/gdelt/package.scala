@@ -77,6 +77,7 @@ package object gdelt {
     * @param amounts
     * @param translationInfo
     * @param extrasXML
+    * @param parseError
     */
   case class GKGEvent(
                        gkgRecordId: GkgRecordId = GkgRecordId(),
@@ -105,7 +106,8 @@ package object gdelt {
                        allNames: List[Name] = List.empty[Name],
                        amounts: List[Amount] = List.empty[Amount],
                        translationInfo: TranslationInfo = TranslationInfo(),
-                       extrasXML: String = ""
+                       extrasXML: String = "",
+                       parseError: String =""
                      )
 
   /**
@@ -361,11 +363,6 @@ package object gdelt {
                           )
 
   implicit class GdeltSpark(dfReader: DataFrameReader) {
-    def gdeltGkg(inputDir: String): Dataset[GKGEvent] = {
-      val ds = dfReader.textFile(inputDir)
-      import ds.sparkSession.implicits._
-      ds.map(GdeltParser.parseGkg)
-    }
 
     def gdeltGkg(inputPaths: String*): Dataset[GKGEvent] = {
       val ds = dfReader.textFile(inputPaths:_*)
@@ -373,10 +370,8 @@ package object gdelt {
       ds.map(GdeltParser.parseGkg)
     }
 
-    def gdeltEvent(inputDir: String): Dataset[Event] = {
-      val ds = dfReader.textFile(inputDir)
-      import ds.sparkSession.implicits._
-      ds.map(GdeltParser.parseEvent)
+    def gdeltGkg(inputPath: String): Dataset[GKGEvent] = {
+     gdeltGkg(Seq(inputPath): _*)
     }
 
     def gdeltEvent(inputPaths: String*): Dataset[Event] = {
@@ -385,10 +380,8 @@ package object gdelt {
       ds.map(GdeltParser.parseEvent)
     }
 
-    def gdeltMention(inputDir: String): Dataset[Mention] = {
-      val ds = dfReader.textFile(inputDir)
-      import ds.sparkSession.implicits._
-      ds.map(GdeltParser.parseMention)
+    def gdeltEvent(inputPath: String): Dataset[Event] = {
+      gdeltEvent(Seq(inputPath): _*)
     }
 
     def gdeltMention(inputPaths: String*): Dataset[Mention] = {
@@ -396,6 +389,11 @@ package object gdelt {
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseMention)
     }
+
+    def gdeltMention(inputPath: String): Dataset[Mention] = {
+      gdeltMention(Seq(inputPath): _*)
+    }
+
   }
 
   implicit class GdeltReferenceData(spark: SparkSession) {
