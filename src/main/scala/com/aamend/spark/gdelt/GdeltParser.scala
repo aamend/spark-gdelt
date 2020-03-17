@@ -202,11 +202,11 @@ object GdeltParser {
 
   }
 
-  private def buildPublishDate(str: String) = {
+  private def buildPublishDate(str: String): Timestamp = {
     Try(new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime)).getOrElse(new Timestamp(0L))
   }
 
-  private def buildGkgRecordId(str: String) = {
+  private def buildGkgRecordId(str: String): GkgRecordId = {
     val split = str.split("-")
     Try {
       val isTranslingual = split(1).contains("T")
@@ -215,83 +215,83 @@ object GdeltParser {
     } getOrElse GkgRecordId()
   }
 
-  private def buildTranslationInfo(str: String) = {
+  private def buildTranslationInfo(str: String): TranslationInfo = {
     val values = str.split(";")
     Try(TranslationInfo(SRCLC = values(0), ENG = values(1))).getOrElse(TranslationInfo())
   }
 
-  private def buildAmounts(str: String) = {
+  private def buildAmounts(str: String): List[Amount] = {
     str.split(";").map(buildAmount).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildAmount(str: String) = {
+  private def buildAmount(str: String): Option[Amount] = {
     val values = str.split(",")
     Try(Amount(amount = values(0).toDouble, amountType = values(1), charOffset = values(2).toInt)).toOption
   }
 
-  private def buildNames(str: String) = {
+  private def buildNames(str: String): List[Name] = {
     str.split(";").map(buildName).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildName(str: String) = {
+  private def buildName(str: String): Option[Name] = {
     val values = str.split(",")
     Try(Name(name = values(0), charOffset = values(1).toInt)).toOption
   }
 
-  private def buildQuotations(str: String) = {
+  private def buildQuotations(str: String): List[Quotation] = {
     str.split("#").map(buildQuotation).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildQuotation(str: String) = {
+  private def buildQuotation(str: String): Option[Quotation] = {
     val values = str.split("\\|")
     Try(Quotation(charOffset = values(0).toInt, charLength = values(1).toInt, verb = values(2), quote = values(3))).toOption
   }
 
-  private def buildSocialImageEmbeds(str: String) = str.split(";").toList
+  private def buildSocialImageEmbeds(str: String): List[String] = str.split(";").toList
 
-  private def buildSocialVideoEmbeds(str: String) = str.split(";").toList
+  private def buildSocialVideoEmbeds(str: String): List[String] = str.split(";").toList
 
-  private def buildRelatedImages(str: String) = str.split(";").toList
+  private def buildRelatedImages(str: String): List[String] = str.split(";").toList
 
-  private def buildGcams(str: String) = {
+  private def buildGcams(str: String): List[Gcam] = {
     str.split(",").map(buildGcam).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildGcam(str: String) = {
+  private def buildGcam(str: String): Option[Gcam] = {
     val split = str.split(":")
     Try(Gcam(gcamCode = split(0), gcamValue = split(1).toDouble)).toOption
   }
 
-  private def buildEnhancedDates(str: String) = {
+  private def buildEnhancedDates(str: String): List[EnhancedDate] = {
     str.split(";").map(buildEnhancedDate).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildEnhancedDate(str: String) = {
+  private def buildEnhancedDate(str: String): Option[EnhancedDate] = {
     val values = str.split("#")
     Try(EnhancedDate(dateResolution = values(0).toInt, month = values(1).toInt, day = values(2).toInt, year = values(3).toInt, charOffset = values(4).toInt)).toOption
   }
 
-  private def buildTone(str: String) = {
+  private def buildTone(str: String): Tone = {
     val values = str.split(",")
     Try(Tone(tone = values(0).toFloat, positiveScore = values(1).toFloat, negativeScore = values(2).toFloat, polarity = values(3).toFloat, activityReferenceDensity = values(4).toFloat, selfGroupReferenceDensity = values(5).toFloat, wordCount = values(6).toInt)).getOrElse(Tone())
   }
 
-  private def buildEnhancedOrganisations(str: String) = {
+  private def buildEnhancedOrganisations(str: String): List[EnhancedOrganisation] = {
     str.split(";").map(buildEnhancedOrganisation).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildEnhancedOrganisation(str: String) = {
+  private def buildEnhancedOrganisation(str: String): Option[EnhancedOrganisation] = {
     val blocks = str.split(",")
     Try(EnhancedOrganisation(organisation = blocks(0), charOffset = blocks(1).toInt)).toOption
   }
 
   private def buildOrganisations(str: String) = str.split(";").toList
 
-  private def buildEnhancedPersons(str: String) = {
+  private def buildEnhancedPersons(str: String): List[EnhancedPerson] = {
     str.split(";").map(buildEnhancedPerson).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildEnhancedPerson(str: String) = {
+  private def buildEnhancedPerson(str: String): Option[EnhancedPerson] = {
     val blocks = str.split(",")
     Try(EnhancedPerson(person = blocks(0), charOffset = blocks(1).toInt)).toOption
   }
@@ -300,11 +300,11 @@ object GdeltParser {
 
   private def buildSourceCollectionIdentifier(str: String) = Try(sourceCollectionIdentifier(str.toInt)).getOrElse(sourceCollectionIdentifier(-1))
 
-  private def buildEnhancedLocations(str: String) = {
+  private def buildEnhancedLocations(str: String): List[EnhancedLocation] = {
     str.split(";").map(buildEnhancedLocation).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildEnhancedLocation(str: String) = {
+  private def buildEnhancedLocation(str: String): Option[EnhancedLocation] = {
     val blocks = str.split("#")
     Try {
       val geoPoint = GeoPoint(latitude = blocks(5).toFloat, longitude = blocks(6).toFloat)
@@ -313,11 +313,11 @@ object GdeltParser {
     }.toOption
   }
 
-  private def buildLocations(str: String) = {
+  private def buildLocations(str: String): List[Location] = {
     str.split(";").map(buildLocation).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildLocation(str: String) = {
+  private def buildLocation(str: String): Option[Location] = {
     val blocks = str.split("#")
     Try {
       val geoPoint = GeoPoint(latitude = blocks(4).toFloat, longitude = blocks(5).toFloat)
@@ -325,29 +325,29 @@ object GdeltParser {
     }.toOption
   }
 
-  private def buildEnhancedThemes(str: String) = {
+  private def buildEnhancedThemes(str: String): List[EnhancedTheme] = {
     str.split(";").map(buildEnhancedTheme).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildEnhancedTheme(str: String) = {
+  private def buildEnhancedTheme(str: String): Option[EnhancedTheme] = {
     val blocks = str.split(",")
     Try(EnhancedTheme(theme = blocks(0), charOffset = blocks(1).toInt)).toOption
   }
 
-  private def buildThemes(str: String) = str.split(";").toList
+  private def buildThemes(str: String): List[String] = str.split(";").toList
 
-  private def buildEnhancedCounts(str: String) = {
+  private def buildEnhancedCounts(str: String): List[EnhancedCount] = {
     str.split(";").map(buildEnhancedCount).filter(_.isDefined).map(_.get).toList
   }
 
-  private def buildEnhancedCount(str: String) = {
+  private def buildEnhancedCount(str: String): Option[EnhancedCount] = {
     Try {
       val count = buildCount(str).get
       EnhancedCount(count = count, charOffset = str.substring(str.lastIndexOf('#') + 1).toInt)
     }.toOption
   }
 
-  private def buildCount(str: String) = {
+  private def buildCount(str: String): Option[Count] = {
     val blocks = str.split("#")
     Try {
       val geoPoint = GeoPoint(latitude = blocks(7).toFloat, longitude = blocks(8).toFloat)
@@ -356,7 +356,7 @@ object GdeltParser {
     }.toOption
   }
 
-  private def buildCounts(str: String) = {
+  private def buildCounts(str: String): List[Count] = {
     str.split(";").map(buildCount).filter(_.isDefined).map(_.get).toList
   }
 
