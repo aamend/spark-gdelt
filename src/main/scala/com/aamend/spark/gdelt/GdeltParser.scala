@@ -209,8 +209,8 @@ object GdeltParser {
   private def buildGkgRecordId(str: String) = {
     val split = str.split("-")
     Try {
-      val isTranslingual = split(1).length > 1
-      val numberInBatch = if (isTranslingual) split(1).substring(1).toInt else split(1).toInt
+      val isTranslingual = split(1).contains("T")
+      val numberInBatch = if (isTranslingual) split(1).replace("T", "").toInt else split(1).toInt
       GkgRecordId(publishDate = new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(split(0)).getTime), translingual = isTranslingual, numberInBatch = numberInBatch)
     } getOrElse GkgRecordId()
   }
