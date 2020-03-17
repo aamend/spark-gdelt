@@ -77,6 +77,7 @@ package object gdelt {
     * @param amounts
     * @param translationInfo
     * @param extrasXML
+    * @param parseError
     */
   case class GKGEvent(
                        gkgRecordId: GkgRecordId = GkgRecordId(),
@@ -105,7 +106,8 @@ package object gdelt {
                        allNames: List[Name] = List.empty[Name],
                        amounts: List[Amount] = List.empty[Amount],
                        translationInfo: TranslationInfo = TranslationInfo(),
-                       extrasXML: String = ""
+                       extrasXML: String = "",
+                       parseError: String =""
                      )
 
   /**

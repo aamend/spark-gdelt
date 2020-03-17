@@ -3,7 +3,9 @@ package com.aamend.spark.gdelt
 import java.sql.{Date, Timestamp}
 import java.text.SimpleDateFormat
 
-import scala.util.Try
+//import scala.util.Try
+import scala.util.{Try,Success,Failure}
+
 
 /**
   * Created by antoine on 24/03/2018.
@@ -168,39 +170,45 @@ object GdeltParser {
 
     val values = str.split(DELIMITER, -1)
 
-    Try {
+    val tryGKGEvent =  Try (
       GKGEvent(
-        gkgRecordId = buildGkgRecordId(values(0)),
-        publishDate = buildPublishDate(values(1)),
-        sourceCollectionIdentifier = buildSourceCollectionIdentifier(values(2)),
-        sourceCommonName = values(3),
-        documentIdentifier = values(4),
-        counts = buildCounts(values(5)),
-        enhancedCounts = buildEnhancedCounts(values(6)),
-        themes = buildThemes(values(7)),
-        enhancedThemes = buildEnhancedThemes(values(8)),
-        locations = buildLocations(values(9)),
-        enhancedLocations = buildEnhancedLocations(values(10)),
-        persons = buildPersons(values(11)),
-        enhancedPersons = buildEnhancedPersons(values(12)),
-        organisations = buildOrganisations(values(13)),
-        enhancedOrganisations = buildEnhancedOrganisations(values(14)),
-        tone = buildTone(values(15)),
-        enhancedDates = buildEnhancedDates(values(16)),
-        gcams = buildGcams(values(17)),
-        sharingImage = values(18),
-        relatedImages = buildRelatedImages(values(19)),
-        socialImageEmbeds = buildSocialImageEmbeds(values(20)),
-        socialVideoEmbeds = buildSocialVideoEmbeds(values(21)),
-        quotations = buildQuotations(values(22)),
-        allNames = buildNames(values(23)),
-        amounts = buildAmounts(values(24)),
-        translationInfo = buildTranslationInfo(values(25)),
-        extrasXML = values(26)
+        gkgRecordId = Try(buildGkgRecordId(values(0))).getOrElse(GkgRecordId()),
+        publishDate = Try(buildPublishDate(values(1))).getOrElse(new Timestamp(0L)),
+        sourceCollectionIdentifier = Try(buildSourceCollectionIdentifier(values(2))).getOrElse(""),
+        sourceCommonName = Try(values(3)).getOrElse(""),
+        documentIdentifier = Try(values(4)).getOrElse(""),
+        counts = Try(buildCounts(values(5))).getOrElse(List.empty[Count]),
+        enhancedCounts = Try(buildEnhancedCounts(values(6))).getOrElse(List.empty[EnhancedCount]),
+        themes = Try(buildThemes(values(7))).getOrElse(List.empty[String]),
+        enhancedThemes = Try(buildEnhancedThemes(values(8))).getOrElse(List.empty[EnhancedTheme]),
+        locations = Try(buildLocations(values(9))).getOrElse(List.empty[Location]),
+        enhancedLocations = Try(buildEnhancedLocations(values(10))).getOrElse(List.empty[EnhancedLocation]),
+        persons = Try(buildPersons(values(11))).getOrElse(List.empty[String]),
+        enhancedPersons = Try(buildEnhancedPersons(values(12))).getOrElse(List.empty[EnhancedPerson]),
+        organisations = Try(buildOrganisations(values(13))).getOrElse(List.empty[String]),
+        enhancedOrganisations = Try(buildEnhancedOrganisations(values(14))).getOrElse(List.empty[EnhancedOrganisation]),
+        tone = Try(buildTone(values(15))).getOrElse(Tone()),
+        enhancedDates = Try(buildEnhancedDates(values(16))).getOrElse(List.empty[EnhancedDate]),
+        gcams = Try(buildGcams(values(17))).getOrElse(List.empty[Gcam]),
+        sharingImage = Try(values(18)).getOrElse(""),
+        relatedImages = Try(buildRelatedImages(values(19))).getOrElse(List.empty[String]),
+        socialImageEmbeds = Try(buildSocialImageEmbeds(values(20))).getOrElse(List.empty[String]),
+        socialVideoEmbeds = Try(buildSocialVideoEmbeds(values(21))).getOrElse(List.empty[String]),
+        quotations = Try(buildQuotations(values(22))).getOrElse(List.empty[Quotation]),
+        allNames = Try(buildNames(values(23))).getOrElse(List.empty[Name]),
+        amounts = Try(buildAmounts(values(24))).getOrElse(List.empty[Amount]),
+        translationInfo = Try(buildTranslationInfo(values(25))).getOrElse(TranslationInfo()),
+        extrasXML = Try(values(26)).getOrElse(""),
+        parseError = ""
       )
-    }.getOrElse(GKGEvent())
+    )
 
+   tryGKGEvent  match {
+    case Success(gkgEvent) => gkgEvent
+    case Failure(error) => GKGEvent(parseError=error.toString)
   }
+  }
+
 
   private def buildPublishDate(str: String): Timestamp = {
     Try(new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime)).getOrElse(new Timestamp(0L))
