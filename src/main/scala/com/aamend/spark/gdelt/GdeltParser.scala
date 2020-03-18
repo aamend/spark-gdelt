@@ -3,9 +3,10 @@ package com.aamend.spark.gdelt
 import java.sql.{Date, Timestamp}
 import java.text.SimpleDateFormat
 
-//import scala.util.Try
 import scala.util.{Try,Success,Failure}
 
+import java.security.MessageDigest
+import java.util.Base64
 
 /**
   * Created by antoine on 24/03/2018.
@@ -14,6 +15,16 @@ object GdeltParser {
 
   private val DELIMITER = "\t"
 
+  // Perform SHA-256 hashing to get a digest of the input string
+  def sha_256(in: String): String = {
+    val md: MessageDigest = MessageDigest.getInstance("SHA-256")  // Instantiate MD with algo SHA-256
+    new String(Base64.getEncoder.encode(md.digest(in.getBytes)),"UTF-8") // Encode the resulting byte array as a base64 string
+  }
+
+  //Generate UDFs from the above functions (not directly evaluated functions)
+  //To call this function directly use the name in parenthesis. If you wish to use them in a transform use the udf() names.
+  //private val sha__256 = udf(sha_256 _)
+  
   def parseEvent(str: String): Event = {
 
     val tokens = str.split(DELIMITER)
@@ -168,9 +179,11 @@ object GdeltParser {
 
   def parseGkg(str: String): GKGEvent = {
 
+    val thisHash = Try(sha_256(str)).getOrElse("")
     val values = str.split(DELIMITER, -1)
 
     val tryGKGEvent =  Try (
+
       GKGEvent(
         gkgRecordId = Try(buildGkgRecordId(values(0))).getOrElse(GkgRecordId()),
         publishDate = Try(buildPublishDate(values(1))).getOrElse(new Timestamp(0L)),
@@ -199,6 +212,8 @@ object GdeltParser {
         amounts = Try(buildAmounts(values(24))).getOrElse(List.empty[Amount]),
         translationInfo = Try(buildTranslationInfo(values(25))).getOrElse(TranslationInfo()),
         extrasXML = Try(values(26)).getOrElse(""),
+        numCSVFields = values.size,
+        hash = thisHash,
         parseError = ""
       )
     )

@@ -77,6 +77,8 @@ package object gdelt {
     * @param amounts
     * @param translationInfo
     * @param extrasXML
+    * @param numCSVFields
+    * @param hash
     * @param parseError
     */
   case class GKGEvent(
@@ -107,6 +109,8 @@ package object gdelt {
                        amounts: List[Amount] = List.empty[Amount],
                        translationInfo: TranslationInfo = TranslationInfo(),
                        extrasXML: String = "",
+                       numCSVFields: Integer = 0,
+                       hash: String ="",
                        parseError: String =""
                      )
 
