@@ -15,6 +15,7 @@ package object gdelt {
     try {
       val x: A = r.apply()
       x match {
+        case _ if(x == null) => None
         case p: String => if (p.trim.length == 0) None else Some(p.trim.asInstanceOf[A])
         case _ => Some(x)
       }
