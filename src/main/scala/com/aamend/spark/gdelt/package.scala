@@ -91,6 +91,7 @@ package object gdelt {
     * @param translationInfo
     * @param extrasXML
     * @param hash
+    * @param errors
     */
   case class GKGEvent(
                        gkgRecordId: Option[GkgRecordId] = None,
@@ -120,7 +121,8 @@ package object gdelt {
                        amounts: List[Amount] = List.empty[Amount],
                        translationInfo: Option[TranslationInfo],
                        extrasXML: Option[String] = None,
-                       hash: Option[String] = None
+                       hash: Option[String] = None,
+                       errors: Option[String] = None
                      )
 
   /**
@@ -174,6 +176,8 @@ package object gdelt {
     * @param dateAdded          This field stores the date the event was added to the master database.
     * @param sourceUrl          This field records the URL or citation of the first news report it found this event in.
     *                           In most cases this is the first report it saw the article in, but due to the timing and flow of news reports through the processing pipeline, this may not always be the very first report, but is at least in the first few reports.
+    * @param hash               This field is a hash digest of the Event input string
+    * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
   case class Event(
                     eventId: Option[Int] = None,
@@ -195,7 +199,8 @@ package object gdelt {
                     eventGeo: Option[Location] = None,
                     dateAdded: Option[Date] = None,
                     sourceUrl: Option[String] = None,
-                    hash: Option[String] = None
+                    hash: Option[String] = None,
+                    errors: Option[String] = None
                   )
 
   /**
@@ -228,6 +233,8 @@ package object gdelt {
     *                          See the discussion in the codebook at http://data.gdeltproject.org/documentation/GDELT-Event_Codebook-V2.0.pdf
     * @param mentionDocLen     The length in English characters of the source document (making it possible to filter for short articles focusing on a particular event versus long summary articles that casually mention an event in passing).
     * @param mentionDocTone    The same contents as the AvgTone field in the Events table, but computed for this particular article.
+    * @param hash               This field is a hash digest of the Event input string
+    * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
   case class Mention(
                       eventId: Option[Long] = None,
@@ -244,7 +251,8 @@ package object gdelt {
                       confidence: Option[Int] = None,
                       mentionDocLen: Option[Int] = None,
                       mentionDocTone: Option[Float] = None,
-                      hash: Option[String] = None
+                      hash: Option[String] = None,
+                      errors: Option[String] = None
                     )
 
   /**

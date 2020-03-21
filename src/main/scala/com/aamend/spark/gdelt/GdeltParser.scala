@@ -17,14 +17,12 @@ object GdeltParser {
 
   // Perform SHA-256 hashing to get a digest of the input string
   def sha_256(in: String): String = {
-    val md: MessageDigest = MessageDigest.getInstance("SHA-256")  // Instantiate MD with algo SHA-256
-    new String(Base64.getEncoder.encode(md.digest(in.getBytes)),"UTF-8") // Encode the resulting byte array as a base64 string
+    // Instantiate MD with algo SHA-256
+    val md: MessageDigest = MessageDigest.getInstance("SHA-256")  
+    // Encode the resulting byte array as a base64 string
+    new String(Base64.getEncoder.encode(md.digest(in.getBytes)),"UTF-8") 
   }
 
-  //Generate UDFs from the above functions (not directly evaluated functions)
-  //To call this function directly use the name in parenthesis. If you wish to use them in a transform use the udf() names.
-  //private val sha__256 = udf(sha_256 _)
-  
   def parseEvent(str: String): Event = {
 
     val tokens = str.split(DELIMITER)
@@ -109,7 +107,8 @@ object GdeltParser {
       eventGeo = Some(eventGeo),
       dateAdded = T(()=>new Date(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(59)).getTime)),
       sourceUrl = T(()=>tokens(60)),
-      hash = T(()=>sha_256(str))
+      hash = T(()=>sha_256(str)),
+      errors = T(()=>"")
     )
   }
 
@@ -149,7 +148,8 @@ object GdeltParser {
       confidence = T(()=>tokens(11).toInt),
       mentionDocLen = T(()=>tokens(12).toInt),
       mentionDocTone = T(()=>tokens(13).toFloat),
-      hash = T(()=>sha_256(str))
+      hash = T(()=>sha_256(str)),
+      errors = T(()=>"")
     )
     
   }
@@ -196,7 +196,8 @@ object GdeltParser {
       amounts = T(()=>buildAmounts(values(24))).getOrElse(List.empty[Amount]),
       translationInfo = T(()=>buildTranslationInfo(values(25))),
       extrasXML = T(()=>values(26)),
-      hash = T(()=>sha_256(str))
+      hash = T(()=>sha_256(str)),
+      errors = T(()=>"")
     )
 
   }
