@@ -169,8 +169,8 @@ object GdeltParser {
     val values = str.split(DELIMITER, -1)
 
     GKGEvent(
-      gkgRecordId = T(()=>buildGkgRecordId(values(0))),
-      publishDate = T(()=>buildPublishDate(values(1))),
+      gkgRecordId = buildGkgRecordId(values(0)),
+      publishDate = buildPublishDate(values(1)),
       sourceCollectionIdentifier = T(()=>buildSourceCollectionIdentifier(values(2))),
       sourceCommonName = T(()=>values(3)),
       documentIdentifier = T(()=>values(4)),
@@ -203,17 +203,18 @@ object GdeltParser {
   }
 
 
-  private def buildPublishDate(str: String): Timestamp = {
-    T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime)).getOrElse(new Timestamp(0L))
+  private def buildPublishDate(str: String): Option[Timestamp] = {
+    T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime))
   }
 
-  private def buildGkgRecordId(str: String): GkgRecordId = {
-    val split = str.split("-")
-    Try {
+  private def buildGkgRecordId(str: String): Option[GkgRecordId] = {
+    T(() => {
+      val split = str.split("-")
       val isTranslingual = T(()=>split(1).contains("T"))
       val numberInBatch = T(()=>if (isTranslingual.isDefined && isTranslingual.get) split(1).replace("T", "").toInt else split(1).toInt)
-      GkgRecordId(publishDate = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(split(0)).getTime)), translingual = isTranslingual, numberInBatch = numberInBatch)
-    } getOrElse GkgRecordId()
+      val publishDate = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(split(0)).getTime))
+      GkgRecordId(publishDate = publishDate, translingual = isTranslingual, numberInBatch = numberInBatch)
+    })
   }
 
   private def buildTranslationInfo(str: String): TranslationInfo = {
