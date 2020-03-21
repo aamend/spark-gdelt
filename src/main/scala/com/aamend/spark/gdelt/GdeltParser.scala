@@ -3,9 +3,10 @@ package com.aamend.spark.gdelt
 import java.sql.{Date, Timestamp}
 import java.text.SimpleDateFormat
 
-//import scala.util.Try
 import scala.util.{Try,Success,Failure}
 
+import java.security.MessageDigest
+import java.util.Base64
 
 /**
   * Created by antoine on 24/03/2018.
@@ -14,104 +15,101 @@ object GdeltParser {
 
   private val DELIMITER = "\t"
 
+  // Perform SHA-256 hashing to get a digest of the input string
+  def sha_256(in: String): String = {
+    // Instantiate MD with algo SHA-256
+    val md: MessageDigest = MessageDigest.getInstance("SHA-256")  
+    // Encode the resulting byte array as a base64 string
+    new String(Base64.getEncoder.encode(md.digest(in.getBytes)),"UTF-8") 
+  }
+
   def parseEvent(str: String): Event = {
 
     val tokens = str.split(DELIMITER)
 
-    val actor1Code: Actor = Try {
-      Actor(
-        cameoRaw = tokens(5),
-        cameoName = tokens(6),
-        cameoCountryCode = tokens(7),
-        cameoGroupCode = tokens(8),
-        cameoEthnicCode = tokens(9),
-        cameoReligion1Code = tokens(10),
-        cameoReligion2Code = tokens(11),
-        cameoType1Code = tokens(12),
-        cameoType2Code = tokens(13),
-        cameoType3Code = tokens(14)
-      )
-    }.getOrElse(Actor())
+    val actor1Code: Actor = Actor(
+      cameoRaw = T(()=>tokens(5)),
+      cameoName = T(()=>tokens(6)),
+      cameoCountryCode = T(()=>tokens(7)),
+      cameoGroupCode = T(()=>tokens(8)),
+      cameoEthnicCode = T(()=>tokens(9)),
+      cameoReligion1Code = T(()=>tokens(10)),
+      cameoReligion2Code = T(()=>tokens(11)),
+      cameoType1Code = T(()=>tokens(12)),
+      cameoType2Code = T(()=>tokens(13)),
+      cameoType3Code = T(()=>tokens(14))
+    )
 
-    val actor2Code: Actor = Try {
-      Actor(
-        cameoRaw = tokens(15),
-        cameoName = tokens(16),
-        cameoCountryCode = tokens(17),
-        cameoGroupCode = tokens(18),
-        cameoEthnicCode = tokens(19),
-        cameoReligion1Code = tokens(20),
-        cameoReligion2Code = tokens(21),
-        cameoType1Code = tokens(22),
-        cameoType2Code = tokens(23),
-        cameoType3Code = tokens(24)
-      )
-    }.getOrElse(Actor())
+    val actor2Code: Actor = Actor(
+      cameoRaw = T(()=>tokens(15)),
+      cameoName = T(()=>tokens(16)),
+      cameoCountryCode = T(()=>tokens(17)),
+      cameoGroupCode = T(()=>tokens(18)),
+      cameoEthnicCode = T(()=>tokens(19)),
+      cameoReligion1Code = T(()=>tokens(20)),
+      cameoReligion2Code = T(()=>tokens(21)),
+      cameoType1Code = T(()=>tokens(22)),
+      cameoType2Code = T(()=>tokens(23)),
+      cameoType3Code = T(()=>tokens(24))
+    )
 
-    val actor1GeoPoint: GeoPoint = Try(GeoPoint(tokens(40).toFloat, tokens(41).toFloat)).getOrElse(GeoPoint())
-    val actor2GeoPoint: GeoPoint = Try(GeoPoint(tokens(48).toFloat, tokens(49).toFloat)).getOrElse(GeoPoint())
-    val eventGeoPoint: GeoPoint = Try(GeoPoint(tokens(56).toFloat, tokens(57).toFloat)).getOrElse(GeoPoint())
+    val actor1GeoPoint: GeoPoint = GeoPoint(T(()=>tokens(40).toFloat), T(()=>tokens(41).toFloat))
+    val actor2GeoPoint: GeoPoint = GeoPoint(T(()=>tokens(48).toFloat), T(()=>tokens(49).toFloat))
+    val eventGeoPoint: GeoPoint = GeoPoint(T(()=>tokens(56).toFloat), T(()=>tokens(57).toFloat))
 
-    val actor1Geo: Location = Try {
-      Location(
-        geoType = geoType(tokens(35).toInt),
-        geoName = tokens(36),
-        countryCode = tokens(37),
-        adm1Code = tokens(38),
-        adm2Code = tokens(39),
-        geoPoint = actor1GeoPoint,
-        featureId = tokens(40)
-      )
-    }.getOrElse(Location())
+    val actor1Geo: Location = Location(
+      geoType = T(()=>geoType(tokens(35).toInt)),
+      geoName = T(()=>tokens(36)),
+      countryCode = T(()=>tokens(37)),
+      adm1Code = T(()=>tokens(38)),
+      adm2Code = T(()=>tokens(39)),
+      geoPoint = T(()=>actor1GeoPoint),
+      featureId = T(()=>tokens(40))
+    )
 
-    val actor2Geo: Location = Try {
-      Location(
-        geoType = geoType(tokens(43).toInt),
-        geoName = tokens(44),
-        countryCode = tokens(45),
-        adm1Code = tokens(46),
-        adm2Code = tokens(47),
-        geoPoint = actor2GeoPoint,
-        featureId = tokens(50)
-      )
-    }.getOrElse(Location())
+    val actor2Geo: Location = Location(
+      geoType = T(()=>geoType(tokens(43).toInt)),
+      geoName = T(()=>tokens(44)),
+      countryCode = T(()=>tokens(45)),
+      adm1Code = T(()=>tokens(46)),
+      adm2Code = T(()=>tokens(47)),
+      geoPoint = Some(actor2GeoPoint),
+      featureId = T(()=>tokens(50))
+    )
 
-    val eventGeo: Location = Try {
-      Location(
-        geoType = geoType(tokens(51).toInt),
-        geoName = tokens(52),
-        countryCode = tokens(53),
-        adm1Code = tokens(54),
-        adm2Code = tokens(55),
-        geoPoint = eventGeoPoint,
-        featureId = tokens(58)
-      )
-    }.getOrElse(Location())
+    val eventGeo: Location = Location(
+      geoType = T(()=>geoType(tokens(51).toInt)),
+      geoName = T(()=>tokens(52)),
+      countryCode = T(()=>tokens(53)),
+      adm1Code = T(()=>tokens(54)),
+      adm2Code = T(()=>tokens(55)),
+      geoPoint = Some(eventGeoPoint),
+      featureId = T(()=>tokens(58))
+    )
 
-    Try {
-      Event(
-        eventId = tokens(0).toInt,
-        eventDay = new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(1)).getTime),
-        actor1Code = actor1Code,
-        actor2Code = actor2Code,
-        isRoot = tokens(25) == "1",
-        cameoEventCode = tokens(26),
-        cameoEventBaseCode = tokens(27),
-        cameoEventRootCode = tokens(28),
-        quadClass = quadClass(tokens(29).toInt),
-        goldstein = tokens(30).toFloat,
-        numMentions = tokens(31).toInt,
-        numSources = tokens(32).toInt,
-        numArticles = tokens(33).toInt,
-        avgTone = tokens(34).toFloat,
-        actor1Geo = actor1Geo,
-        actor2Geo = actor2Geo,
-        eventGeo = eventGeo,
-        dateAdded = new Date(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(59)).getTime),
-        sourceUrl = tokens(60)
-      )
-    }.getOrElse(Event())
-
+    Event(
+      eventId = T(()=>tokens(0).toInt),
+      eventDay = T(()=>new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(1)).getTime)),
+      actor1Code = Some(actor1Code),
+      actor2Code = Some(actor2Code),
+      isRoot = T(()=>tokens(25) == "1"),
+      cameoEventCode = T(()=>tokens(26)),
+      cameoEventBaseCode = T(()=>tokens(27)),
+      cameoEventRootCode = T(()=>tokens(28)),
+      quadClass = T(()=>quadClass(tokens(29).toInt)),
+      goldstein = T(()=>tokens(30).toFloat),
+      numMentions = T(()=>tokens(31).toInt),
+      numSources = T(()=>tokens(32).toInt),
+      numArticles = T(()=>tokens(33).toInt),
+      avgTone = T(()=>tokens(34).toFloat),
+      actor1Geo = Some(actor1Geo),
+      actor2Geo = Some(actor2Geo),
+      eventGeo = Some(eventGeo),
+      dateAdded = T(()=>new Date(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(59)).getTime)),
+      sourceUrl = T(()=>tokens(60)),
+      hash = T(()=>sha_256(str)),
+      errors = T(()=>"")
+    )
   }
 
   private def quadClass(quadClass: Int): String = quadClass match {
@@ -135,25 +133,25 @@ object GdeltParser {
 
     val tokens = str.split(DELIMITER)
 
-    Try {
-      Mention(
-        eventId = tokens(0).toLong,
-        eventTime = new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(1)).getTime),
-        mentionTime = new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(2)).getTime),
-        mentionType = buildSourceCollectionIdentifier(tokens(3)), 
-        mentionSourceName = tokens(4),
-        mentionIdentifier = tokens(5),
-        sentenceId = tokens(6).toInt,
-        actor1CharOffset = tokens(7).toInt,
-        actor2CharOffset = tokens(8).toInt,
-        actionCharOffset = tokens(9).toInt,
-        inRawText = tokens(10).toInt,
-        confidence = tokens(11).toInt,
-        mentionDocLen = tokens(12).toInt,
-        mentionDocTone = tokens(13).toFloat
-      )
-    }.getOrElse(Mention())
-
+    Mention(
+      eventId = T(()=>tokens(0).toLong),
+      eventTime = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(1)).getTime)),
+      mentionTime = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(2)).getTime)),
+      mentionType = T(()=>buildSourceCollectionIdentifier(tokens(3))),
+      mentionSourceName = T(()=>tokens(4)),
+      mentionIdentifier = T(()=>tokens(5)),
+      sentenceId = T(()=>tokens(6).toInt),
+      actor1CharOffset = T(()=>tokens(7).toInt),
+      actor2CharOffset = T(()=>tokens(8).toInt),
+      actionCharOffset = T(()=>tokens(9).toInt),
+      inRawText = T(()=>tokens(10).toInt),
+      confidence = T(()=>tokens(11).toInt),
+      mentionDocLen = T(()=>tokens(12).toInt),
+      mentionDocTone = T(()=>tokens(13).toFloat),
+      hash = T(()=>sha_256(str)),
+      errors = T(()=>"")
+    )
+    
   }
 
   private def sourceCollectionIdentifier(sourceCollectionIdentifier: Int): String = sourceCollectionIdentifier match {
@@ -170,62 +168,58 @@ object GdeltParser {
 
     val values = str.split(DELIMITER, -1)
 
-    val tryGKGEvent =  Try (
-      GKGEvent(
-        gkgRecordId = Try(buildGkgRecordId(values(0))).getOrElse(GkgRecordId()),
-        publishDate = Try(buildPublishDate(values(1))).getOrElse(new Timestamp(0L)),
-        sourceCollectionIdentifier = Try(buildSourceCollectionIdentifier(values(2))).getOrElse(""),
-        sourceCommonName = Try(values(3)).getOrElse(""),
-        documentIdentifier = Try(values(4)).getOrElse(""),
-        counts = Try(buildCounts(values(5))).getOrElse(List.empty[Count]),
-        enhancedCounts = Try(buildEnhancedCounts(values(6))).getOrElse(List.empty[EnhancedCount]),
-        themes = Try(buildThemes(values(7))).getOrElse(List.empty[String]),
-        enhancedThemes = Try(buildEnhancedThemes(values(8))).getOrElse(List.empty[EnhancedTheme]),
-        locations = Try(buildLocations(values(9))).getOrElse(List.empty[Location]),
-        enhancedLocations = Try(buildEnhancedLocations(values(10))).getOrElse(List.empty[EnhancedLocation]),
-        persons = Try(buildPersons(values(11))).getOrElse(List.empty[String]),
-        enhancedPersons = Try(buildEnhancedPersons(values(12))).getOrElse(List.empty[EnhancedPerson]),
-        organisations = Try(buildOrganisations(values(13))).getOrElse(List.empty[String]),
-        enhancedOrganisations = Try(buildEnhancedOrganisations(values(14))).getOrElse(List.empty[EnhancedOrganisation]),
-        tone = Try(buildTone(values(15))).getOrElse(Tone()),
-        enhancedDates = Try(buildEnhancedDates(values(16))).getOrElse(List.empty[EnhancedDate]),
-        gcams = Try(buildGcams(values(17))).getOrElse(List.empty[Gcam]),
-        sharingImage = Try(values(18)).getOrElse(""),
-        relatedImages = Try(buildRelatedImages(values(19))).getOrElse(List.empty[String]),
-        socialImageEmbeds = Try(buildSocialImageEmbeds(values(20))).getOrElse(List.empty[String]),
-        socialVideoEmbeds = Try(buildSocialVideoEmbeds(values(21))).getOrElse(List.empty[String]),
-        quotations = Try(buildQuotations(values(22))).getOrElse(List.empty[Quotation]),
-        allNames = Try(buildNames(values(23))).getOrElse(List.empty[Name]),
-        amounts = Try(buildAmounts(values(24))).getOrElse(List.empty[Amount]),
-        translationInfo = Try(buildTranslationInfo(values(25))).getOrElse(TranslationInfo()),
-        extrasXML = Try(values(26)).getOrElse(""),
-        parseError = ""
-      )
+    GKGEvent(
+      gkgRecordId = buildGkgRecordId(values(0)),
+      publishDate = buildPublishDate(values(1)),
+      sourceCollectionIdentifier = T(()=>buildSourceCollectionIdentifier(values(2))),
+      sourceCommonName = T(()=>values(3)),
+      documentIdentifier = T(()=>values(4)),
+      counts = T(()=>buildCounts(values(5))).getOrElse(List.empty[Count]),
+      enhancedCounts = T(()=>buildEnhancedCounts(values(6))).getOrElse(List.empty[EnhancedCount]),
+      themes = T(()=>buildThemes(values(7))).getOrElse(List.empty[String]),
+      enhancedThemes = T(()=>buildEnhancedThemes(values(8))).getOrElse(List.empty[EnhancedTheme]),
+      locations = T(()=>buildLocations(values(9))).getOrElse(List.empty[Location]),
+      enhancedLocations = T(()=>buildEnhancedLocations(values(10))).getOrElse(List.empty[EnhancedLocation]),
+      persons = T(()=>buildPersons(values(11))).getOrElse(List.empty[String]),
+      enhancedPersons = T(()=>buildEnhancedPersons(values(12))).getOrElse(List.empty[EnhancedPerson]),
+      organisations = T(()=>buildOrganisations(values(13))).getOrElse(List.empty[String]),
+      enhancedOrganisations = T(()=>buildEnhancedOrganisations(values(14))).getOrElse(List.empty[EnhancedOrganisation]),
+      tone = T(()=>buildTone(values(15))),
+      enhancedDates = T(()=>buildEnhancedDates(values(16))).getOrElse(List.empty[EnhancedDate]),
+      gcams = T(()=>buildGcams(values(17))).getOrElse(List.empty[Gcam]),
+      sharingImage = T(()=>values(18)),
+      relatedImages = T(()=>buildRelatedImages(values(19))).getOrElse(List.empty[String]),
+      socialImageEmbeds = T(()=>buildSocialImageEmbeds(values(20))).getOrElse(List.empty[String]),
+      socialVideoEmbeds = T(()=>buildSocialVideoEmbeds(values(21))).getOrElse(List.empty[String]),
+      quotations = T(()=>buildQuotations(values(22))).getOrElse(List.empty[Quotation]),
+      allNames = T(()=>buildNames(values(23))).getOrElse(List.empty[Name]),
+      amounts = T(()=>buildAmounts(values(24))).getOrElse(List.empty[Amount]),
+      translationInfo = T(()=>buildTranslationInfo(values(25))),
+      extrasXML = T(()=>values(26)),
+      hash = T(()=>sha_256(str)),
+      errors = T(()=>"")
     )
 
-   tryGKGEvent  match {
-    case Success(gkgEvent) => gkgEvent
-    case Failure(error) => GKGEvent(parseError=error.toString)
-  }
   }
 
 
-  private def buildPublishDate(str: String): Timestamp = {
-    Try(new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime)).getOrElse(new Timestamp(0L))
+  private def buildPublishDate(str: String): Option[Timestamp] = {
+    T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime))
   }
 
-  private def buildGkgRecordId(str: String): GkgRecordId = {
-    val split = str.split("-")
-    Try {
-      val isTranslingual = split(1).contains("T")
-      val numberInBatch = if (isTranslingual) split(1).replace("T", "").toInt else split(1).toInt
-      GkgRecordId(publishDate = new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(split(0)).getTime), translingual = isTranslingual, numberInBatch = numberInBatch)
-    } getOrElse GkgRecordId()
+  private def buildGkgRecordId(str: String): Option[GkgRecordId] = {
+    T(() => {
+      val split = str.split("-")
+      val isTranslingual = T(()=>split(1).contains("T"))
+      val numberInBatch = T(()=>if (isTranslingual.isDefined && isTranslingual.get) split(1).replace("T", "").toInt else split(1).toInt)
+      val publishDate = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(split(0)).getTime))
+      GkgRecordId(publishDate = publishDate, translingual = isTranslingual, numberInBatch = numberInBatch)
+    })
   }
 
   private def buildTranslationInfo(str: String): TranslationInfo = {
     val values = str.split(";")
-    Try(TranslationInfo(SRCLC = values(0), ENG = values(1))).getOrElse(TranslationInfo())
+    T(()=>TranslationInfo(SRCLC = T(()=>values(0)), ENG = T(()=>values(1)))).getOrElse(TranslationInfo())
   }
 
   private def buildAmounts(str: String): List[Amount] = {
@@ -234,7 +228,7 @@ object GdeltParser {
 
   private def buildAmount(str: String): Option[Amount] = {
     val values = str.split(",")
-    Try(Amount(amount = values(0).toDouble, amountType = values(1), charOffset = values(2).toInt)).toOption
+    T(()=>Amount(amount = T(()=>values(0).toDouble), amountType = T(()=>values(1)), charOffset = T(()=>values(2).toInt)))
   }
 
   private def buildNames(str: String): List[Name] = {
@@ -243,7 +237,7 @@ object GdeltParser {
 
   private def buildName(str: String): Option[Name] = {
     val values = str.split(",")
-    Try(Name(name = values(0), charOffset = values(1).toInt)).toOption
+    T(()=>Name(name = T(()=>values(0)), charOffset = T(()=>values(1).toInt)))
   }
 
   private def buildQuotations(str: String): List[Quotation] = {
@@ -252,7 +246,7 @@ object GdeltParser {
 
   private def buildQuotation(str: String): Option[Quotation] = {
     val values = str.split("\\|")
-    Try(Quotation(charOffset = values(0).toInt, charLength = values(1).toInt, verb = values(2), quote = values(3))).toOption
+    T(()=>Quotation(charOffset = T(()=>values(0).toInt), charLength = T(()=>values(1).toInt), verb = T(()=>values(2)), quote = T(()=>values(3))))
   }
 
   private def buildSocialImageEmbeds(str: String): List[String] = str.split(";").toList
@@ -267,7 +261,7 @@ object GdeltParser {
 
   private def buildGcam(str: String): Option[Gcam] = {
     val split = str.split(":")
-    Try(Gcam(gcamCode = split(0), gcamValue = split(1).toDouble)).toOption
+    T(()=>Gcam(gcamCode = T(()=>split(0)), gcamValue = T(()=>split(1).toDouble)))
   }
 
   private def buildEnhancedDates(str: String): List[EnhancedDate] = {
@@ -276,12 +270,12 @@ object GdeltParser {
 
   private def buildEnhancedDate(str: String): Option[EnhancedDate] = {
     val values = str.split("#")
-    Try(EnhancedDate(dateResolution = values(0).toInt, month = values(1).toInt, day = values(2).toInt, year = values(3).toInt, charOffset = values(4).toInt)).toOption
+    T(()=>EnhancedDate(dateResolution = T(()=>values(0).toInt), month = T(()=>values(1).toInt), day = T(()=>values(2).toInt), year = T(()=>values(3).toInt), charOffset = T(()=>values(4).toInt)))
   }
 
   private def buildTone(str: String): Tone = {
     val values = str.split(",")
-    Try(Tone(tone = values(0).toFloat, positiveScore = values(1).toFloat, negativeScore = values(2).toFloat, polarity = values(3).toFloat, activityReferenceDensity = values(4).toFloat, selfGroupReferenceDensity = values(5).toFloat, wordCount = values(6).toInt)).getOrElse(Tone())
+    T(()=>Tone(tone = T(()=>values(0).toFloat), positiveScore = T(()=>values(1).toFloat), negativeScore = T(()=>values(2).toFloat), polarity = T(()=>values(3).toFloat), activityReferenceDensity = T(()=>values(4).toFloat), selfGroupReferenceDensity = T(()=>values(5).toFloat), wordCount = T(()=>values(6).toInt))).getOrElse(Tone())
   }
 
   private def buildEnhancedOrganisations(str: String): List[EnhancedOrganisation] = {
@@ -290,7 +284,7 @@ object GdeltParser {
 
   private def buildEnhancedOrganisation(str: String): Option[EnhancedOrganisation] = {
     val blocks = str.split(",")
-    Try(EnhancedOrganisation(organisation = blocks(0), charOffset = blocks(1).toInt)).toOption
+    T(()=>EnhancedOrganisation(organisation = T(()=>blocks(0)), charOffset = T(()=>blocks(1).toInt)))
   }
 
   private def buildOrganisations(str: String) = str.split(";").toList
@@ -301,12 +295,12 @@ object GdeltParser {
 
   private def buildEnhancedPerson(str: String): Option[EnhancedPerson] = {
     val blocks = str.split(",")
-    Try(EnhancedPerson(person = blocks(0), charOffset = blocks(1).toInt)).toOption
+    T(()=>EnhancedPerson(person = T(()=>blocks(0)), charOffset = T(()=>blocks(1).toInt)))
   }
 
   private def buildPersons(str: String) = str.split(";").toList
 
-  private def buildSourceCollectionIdentifier(str: String) = Try(sourceCollectionIdentifier(str.toInt)).getOrElse(sourceCollectionIdentifier(-1))
+  private def buildSourceCollectionIdentifier(str: String) = T(()=>sourceCollectionIdentifier(str.toInt)).getOrElse(sourceCollectionIdentifier(-1))
 
   private def buildEnhancedLocations(str: String): List[EnhancedLocation] = {
     str.split(";").map(buildEnhancedLocation).filter(_.isDefined).map(_.get).toList
@@ -314,11 +308,11 @@ object GdeltParser {
 
   private def buildEnhancedLocation(str: String): Option[EnhancedLocation] = {
     val blocks = str.split("#")
-    Try {
-      val geoPoint = GeoPoint(latitude = blocks(5).toFloat, longitude = blocks(6).toFloat)
-      val location = Location(geoType = geoType(blocks(0).toInt), geoName = blocks(1), countryCode = blocks(2), adm1Code = blocks(3), adm2Code = blocks(4), geoPoint = geoPoint, featureId = blocks(7))
-      EnhancedLocation(location = location, charOffset = blocks(8).toInt)
-    }.toOption
+    T {() =>
+      val geoPoint = GeoPoint(latitude = T(()=>blocks(5).toFloat), longitude = T(()=>blocks(6).toFloat))
+      val location = Location(geoType = T(()=>geoType(blocks(0).toInt)), geoName = T(()=>blocks(1)), countryCode = T(()=>blocks(2)), adm1Code = T(()=>blocks(3)), adm2Code = T(()=>blocks(4)), geoPoint = Some(geoPoint), featureId = T(()=>blocks(7)))
+      EnhancedLocation(location = Some(location), charOffset = T(()=>blocks(8).toInt))
+    }
   }
 
   private def buildLocations(str: String): List[Location] = {
@@ -327,10 +321,10 @@ object GdeltParser {
 
   private def buildLocation(str: String): Option[Location] = {
     val blocks = str.split("#")
-    Try {
-      val geoPoint = GeoPoint(latitude = blocks(4).toFloat, longitude = blocks(5).toFloat)
-      Location(geoType = geoType(blocks(0).toInt), geoName = blocks(1), countryCode = blocks(2), adm1Code = blocks(3), geoPoint = geoPoint, featureId = blocks(6))
-    }.toOption
+    T {() =>
+      val geoPoint = GeoPoint(latitude = T(()=>blocks(4).toFloat), longitude = T(()=>blocks(5).toFloat))
+      Location(geoType = T(()=>geoType(blocks(0).toInt)), geoName = T(()=>blocks(1)), countryCode = T(()=>blocks(2)), adm1Code = T(()=>blocks(3)), geoPoint = Some(geoPoint), featureId = T(()=>blocks(6)))
+    }
   }
 
   private def buildEnhancedThemes(str: String): List[EnhancedTheme] = {
@@ -339,7 +333,7 @@ object GdeltParser {
 
   private def buildEnhancedTheme(str: String): Option[EnhancedTheme] = {
     val blocks = str.split(",")
-    Try(EnhancedTheme(theme = blocks(0), charOffset = blocks(1).toInt)).toOption
+    T(()=>EnhancedTheme(theme = T(()=>blocks(0)), charOffset = T(()=>blocks(1).toInt)))
   }
 
   private def buildThemes(str: String): List[String] = str.split(";").toList
@@ -349,19 +343,19 @@ object GdeltParser {
   }
 
   private def buildEnhancedCount(str: String): Option[EnhancedCount] = {
-    Try {
-      val count = buildCount(str).get
-      EnhancedCount(count = count, charOffset = str.substring(str.lastIndexOf('#') + 1).toInt)
-    }.toOption
+    T {() =>
+      val count = T(()=>buildCount(str).get)
+      EnhancedCount(count = count, charOffset = T(()=>str.substring(str.lastIndexOf('#') + 1).toInt))
+    }
   }
 
   private def buildCount(str: String): Option[Count] = {
     val blocks = str.split("#")
-    Try {
-      val geoPoint = GeoPoint(latitude = blocks(7).toFloat, longitude = blocks(8).toFloat)
-      val location = Location(geoType = geoType(blocks(3).toInt), geoName = blocks(4), countryCode = blocks(5), adm1Code = blocks(6), geoPoint = geoPoint, featureId = blocks(9))
-      Count(countType = blocks(0), count = blocks(1).toLong, objectType = blocks(2), location = location)
-    }.toOption
+    T {() =>
+      val geoPoint = GeoPoint(latitude = T(()=>blocks(7).toFloat), longitude = T(()=>blocks(8).toFloat))
+      val location = Location(geoType = T(()=>geoType(blocks(3).toInt)), geoName = T(()=>blocks(4)), countryCode = T(()=>blocks(5)), adm1Code = T(()=>blocks(6)), geoPoint = Some(geoPoint), featureId = T(()=>blocks(9)))
+      Count(countType = T(()=>blocks(0)), count = T(()=>blocks(1).toLong), objectType = T(()=>blocks(2)), location = Some(location))
+    }
   }
 
   private def buildCounts(str: String): List[Count] = {

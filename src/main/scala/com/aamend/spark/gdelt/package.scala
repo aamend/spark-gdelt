@@ -11,6 +11,19 @@ import scala.util.Try
 
 package object gdelt {
 
+  def T[A](r: () => A): Option[A] = {
+    try {
+      val x: A = r.apply()
+      x match {
+        case _ if(x == null) => None
+        case p: String => if (p.trim.length == 0) None else Some(p.trim.asInstanceOf[A])
+        case _ => Some(x)
+      }
+    } catch {
+      case _: Throwable => None
+    }
+  }
+
   val ANNOTATOR_TITLE = "title"
   val ANNOTATOR_CONTENT = "content"
   val ANNOTATOR_DESCRIPTION = "description"
@@ -35,7 +48,7 @@ package object gdelt {
       Try {
         val article = goose.extractContent(url)
         Content(
-          url = url,
+          url = Some(url),
           title = Some(article.title).filter(StringUtils.isNotEmpty),
           content = if (StringUtils.isNotEmpty(article.cleanedArticleText)) Some(article.cleanedArticleText.replaceAll("\\n+", "\n")) else None,
           description = Some(article.metaDescription).filter(StringUtils.isNotEmpty),
@@ -44,7 +57,7 @@ package object gdelt {
           imageURL = if (article.topImage != null && StringUtils.isNotEmpty(article.topImage.imageSrc)) Some(article.topImage.imageSrc) else None,
           imageBase64 = if (article.topImage != null && StringUtils.isNotEmpty(article.topImage.imageBase64)) Some(article.topImage.imageBase64) else None
         )
-      } getOrElse Content(url)
+      } getOrElse Content(url = Some(url))
     })
   }
 
@@ -77,14 +90,15 @@ package object gdelt {
     * @param amounts
     * @param translationInfo
     * @param extrasXML
-    * @param parseError
+    * @param hash
+    * @param errors
     */
   case class GKGEvent(
-                       gkgRecordId: GkgRecordId = GkgRecordId(),
-                       publishDate: Timestamp = new Timestamp(0L),
-                       sourceCollectionIdentifier: String = "",
-                       sourceCommonName: String = "",
-                       documentIdentifier: String = "",
+                       gkgRecordId: Option[GkgRecordId] = None,
+                       publishDate: Option[Timestamp] = None,
+                       sourceCollectionIdentifier: Option[String] = None,
+                       sourceCommonName: Option[String] = None,
+                       documentIdentifier: Option[String] = None,
                        counts: List[Count] = List.empty[Count],
                        enhancedCounts: List[EnhancedCount] = List.empty[EnhancedCount],
                        themes: List[String] = List.empty[String],
@@ -95,19 +109,20 @@ package object gdelt {
                        enhancedPersons: List[EnhancedPerson] = List.empty[EnhancedPerson],
                        organisations: List[String] = List.empty[String],
                        enhancedOrganisations: List[EnhancedOrganisation] = List.empty[EnhancedOrganisation],
-                       tone: Tone = Tone(),
+                       tone: Option[Tone] = None,
                        enhancedDates: List[EnhancedDate] = List.empty[EnhancedDate],
                        gcams: List[Gcam] = List.empty[Gcam],
-                       sharingImage: String = "",
+                       sharingImage: Option[String] = None,
                        relatedImages: List[String] = List.empty[String],
                        socialImageEmbeds: List[String] = List.empty[String],
                        socialVideoEmbeds: List[String] = List.empty[String],
                        quotations: List[Quotation] = List.empty[Quotation],
                        allNames: List[Name] = List.empty[Name],
                        amounts: List[Amount] = List.empty[Amount],
-                       translationInfo: TranslationInfo = TranslationInfo(),
-                       extrasXML: String = "",
-                       parseError: String =""
+                       translationInfo: Option[TranslationInfo],
+                       extrasXML: Option[String] = None,
+                       hash: Option[String] = None,
+                       errors: Option[String] = None
                      )
 
   /**
@@ -161,27 +176,31 @@ package object gdelt {
     * @param dateAdded          This field stores the date the event was added to the master database.
     * @param sourceUrl          This field records the URL or citation of the first news report it found this event in.
     *                           In most cases this is the first report it saw the article in, but due to the timing and flow of news reports through the processing pipeline, this may not always be the very first report, but is at least in the first few reports.
+    * @param hash               This field is a hash digest of the Event input string
+    * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
   case class Event(
-                    eventId: Int = 0,
-                    eventDay: Date = new Date(0L),
-                    actor1Code: Actor = Actor(),
-                    actor2Code: Actor = Actor(),
-                    isRoot: Boolean = false,
-                    cameoEventCode: String = "",
-                    cameoEventBaseCode: String = "",
-                    cameoEventRootCode: String = "",
-                    quadClass: String = "",
-                    goldstein: Float = 0.0f,
-                    numMentions: Int = 0,
-                    numSources: Int = 0,
-                    numArticles: Int = 0,
-                    avgTone: Float = 0.0f,
-                    actor1Geo: Location = Location(),
-                    actor2Geo: Location = Location(),
-                    eventGeo: Location = Location(),
-                    dateAdded: Date = new Date(0L),
-                    sourceUrl: String = ""
+                    eventId: Option[Int] = None,
+                    eventDay: Option[Date] = None,
+                    actor1Code: Option[Actor] = None,
+                    actor2Code: Option[Actor] = None,
+                    isRoot: Option[Boolean] = None,
+                    cameoEventCode: Option[String] = None,
+                    cameoEventBaseCode: Option[String] = None,
+                    cameoEventRootCode: Option[String] = None,
+                    quadClass: Option[String] = None,
+                    goldstein: Option[Float] = None,
+                    numMentions: Option[Int] = None,
+                    numSources: Option[Int] = None,
+                    numArticles: Option[Int] = None,
+                    avgTone: Option[Float] = None,
+                    actor1Geo: Option[Location] = None,
+                    actor2Geo: Option[Location] = None,
+                    eventGeo: Option[Location] = None,
+                    dateAdded: Option[Date] = None,
+                    sourceUrl: Option[String] = None,
+                    hash: Option[String] = None,
+                    errors: Option[String] = None
                   )
 
   /**
@@ -214,22 +233,26 @@ package object gdelt {
     *                          See the discussion in the codebook at http://data.gdeltproject.org/documentation/GDELT-Event_Codebook-V2.0.pdf
     * @param mentionDocLen     The length in English characters of the source document (making it possible to filter for short articles focusing on a particular event versus long summary articles that casually mention an event in passing).
     * @param mentionDocTone    The same contents as the AvgTone field in the Events table, but computed for this particular article.
+    * @param hash               This field is a hash digest of the Event input string
+    * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
   case class Mention(
-                      eventId: Long = 0L,
-                      eventTime: Timestamp = new Timestamp(0L),
-                      mentionTime: Timestamp = new Timestamp(0L),
-                      mentionType: String = "",
-                      mentionSourceName: String = "",
-                      mentionIdentifier: String = "",
-                      sentenceId: Int = 0,
-                      actor1CharOffset: Int = 0,
-                      actor2CharOffset: Int = 0,
-                      actionCharOffset: Int = 0,
-                      inRawText: Int = 0,
-                      confidence: Int = 0,
-                      mentionDocLen: Int = 0,
-                      mentionDocTone: Float = 0.0f
+                      eventId: Option[Long] = None,
+                      eventTime: Option[Timestamp] = None,
+                      mentionTime: Option[Timestamp] = None,
+                      mentionType: Option[String] = None,
+                      mentionSourceName: Option[String] = None,
+                      mentionIdentifier: Option[String] = None,
+                      sentenceId: Option[Int] = None,
+                      actor1CharOffset: Option[Int] = None,
+                      actor2CharOffset: Option[Int] = None,
+                      actionCharOffset: Option[Int] = None,
+                      inRawText: Option[Int] = None,
+                      confidence: Option[Int] = None,
+                      mentionDocLen: Option[Int] = None,
+                      mentionDocTone: Option[Float] = None,
+                      hash: Option[String] = None,
+                      errors: Option[String] = None
                     )
 
   /**
@@ -238,8 +261,8 @@ package object gdelt {
     * @param longitude This is the centroid longitude of the landmark for mapping.
     */
   case class GeoPoint(
-                       latitude: Float = Float.NaN,
-                       longitude: Float = Float.NaN
+                       latitude: Option[Float] = None,
+                       longitude: Option[Float] = None
                      )
 
   /**
@@ -259,13 +282,13 @@ package object gdelt {
     *                    More information on these values can be found in Leetaru (2012).
     */
   case class Location(
-                       geoType: String = "",
-                       geoName: String = "",
-                       countryCode: String = "",
-                       adm1Code: String = "",
-                       adm2Code: String = "",
-                       geoPoint: GeoPoint = GeoPoint(),
-                       featureId: String = ""
+                       geoType: Option[String] = None,
+                       geoName: Option[String] = None,
+                       countryCode: Option[String] = None,
+                       adm1Code: Option[String] = None,
+                       adm2Code: Option[String] = None,
+                       geoPoint: Option[GeoPoint] = None,
+                       featureId: Option[String] = None
                      )
 
   /**
@@ -289,77 +312,77 @@ package object gdelt {
     * @param cameoType3Code     If multiple type/role codes are specified for Actor1, this returns the third code.
     */
   case class Actor(
-                    cameoRaw: String = "",
-                    cameoName: String = "",
-                    cameoCountryCode: String = "",
-                    cameoGroupCode: String = "",
-                    cameoEthnicCode: String = "",
-                    cameoReligion1Code: String = "",
-                    cameoReligion2Code: String = "",
-                    cameoType1Code: String = "",
-                    cameoType2Code: String = "",
-                    cameoType3Code: String = ""
+                    cameoRaw: Option[String] = None,
+                    cameoName: Option[String] = None,
+                    cameoCountryCode: Option[String] = None,
+                    cameoGroupCode: Option[String] = None,
+                    cameoEthnicCode: Option[String] = None,
+                    cameoReligion1Code: Option[String] = None,
+                    cameoReligion2Code: Option[String] = None,
+                    cameoType1Code: Option[String] = None,
+                    cameoType2Code: Option[String] = None,
+                    cameoType3Code: Option[String] = None
                   )
 
   case class Count(
-                    countType: String = "",
-                    count: Long = 0,
-                    objectType: String = "",
-                    location: Location = Location()
+                    countType: Option[String] = None,
+                    count: Option[Long] = None,
+                    objectType: Option[String] = None,
+                    location: Option[Location] = None
                   )
 
   case class Tone(
-                   tone: Float = 0.0f,
-                   positiveScore: Float = 0.0f,
-                   negativeScore: Float = 0.0f,
-                   polarity: Float = 0.0f,
-                   activityReferenceDensity: Float = 0.0f,
-                   selfGroupReferenceDensity: Float = 0.0f,
-                   wordCount: Int = 0
+                   tone: Option[Float] = None,
+                   positiveScore: Option[Float] = None,
+                   negativeScore: Option[Float] = None,
+                   polarity: Option[Float] = None,
+                   activityReferenceDensity: Option[Float] = None,
+                   selfGroupReferenceDensity: Option[Float] = None,
+                   wordCount: Option[Int] = None
                  )
 
   case class EnhancedLocation(
-                               location: Location = Location(),
-                               charOffset: Int = 0
+                               location: Option[Location] = None,
+                               charOffset: Option[Int] = None
                              )
 
   case class EnhancedTheme(
-                            theme: String = "",
-                            charOffset: Int = 0
+                            theme: Option[String] = None,
+                            charOffset: Option[Int] = None
                           )
 
   case class EnhancedPerson(
-                             person: String = "",
-                             charOffset: Int = 0
+                             person: Option[String] = None,
+                             charOffset: Option[Int] = None
                            )
 
   case class EnhancedOrganisation(
-                                   organisation: String = "",
-                                   charOffset: Int = 0
+                                   organisation: Option[String] = None,
+                                   charOffset: Option[Int] = None
                                  )
 
   case class Gcam(
-                   gcamCode: String = "",
-                   gcamValue: Double = 0.0
+                   gcamCode: Option[String] = None,
+                   gcamValue: Option[Double] = None
                  )
 
   case class GkgRecordId(
-                          publishDate: Timestamp = new Timestamp(0L),
-                          translingual: Boolean = false,
-                          numberInBatch: Int = 0
+                          publishDate: Option[Timestamp] = None,
+                          translingual: Option[Boolean] = None,
+                          numberInBatch: Option[Int] = None
                         )
 
   case class EnhancedDate(
-                           dateResolution: Int = 0,
-                           month: Int = 0,
-                           day: Int = 0,
-                           year: Int = 0,
-                           charOffset: Int = 0
+                           dateResolution: Option[Int] = None,
+                           month: Option[Int] = None,
+                           day: Option[Int] = None,
+                           year: Option[Int] = None,
+                           charOffset: Option[Int] = None
                          )
 
   case class EnhancedCount(
-                            count: Count = Count(),
-                            charOffset: Int = 0
+                            count: Option[Count] = None,
+                            charOffset: Option[Int] = None
                           )
 
   implicit class GdeltSpark(dfReader: DataFrameReader) {
@@ -432,54 +455,54 @@ package object gdelt {
   }
 
   case class Quotation(
-                        charLength: Int = 0,
-                        verb: String = "",
-                        quote: String = "",
-                        charOffset: Int = 0
+                        charLength: Option[Int] = None,
+                        verb: Option[String] = None,
+                        quote: Option[String] = None,
+                        charOffset: Option[Int] = None
                       )
 
   case class Name(
-                   name: String = "",
-                   charOffset: Int = 0
+                   name: Option[String] = None,
+                   charOffset: Option[Int] = None
                  )
 
   case class Amount(
-                     amount: Double = 0.0d,
-                     amountType: String = "",
-                     charOffset: Int = 0
+                     amount: Option[Double] = None,
+                     amountType: Option[String] = None,
+                     charOffset: Option[Int] = None
                    )
 
   case class TranslationInfo(
-                              SRCLC: String = "",
-                              ENG: String = ""
+                              SRCLC: Option[String] = None,
+                              ENG: Option[String] = None
                             )
 
   case class CountryCode(
-                          iso: String = "",
-                          iso3: String = "",
-                          isoNumeric: String = "",
-                          fips: String = "",
-                          country: String = ""
+                          iso: Option[String] = None,
+                          iso3: Option[String] = None,
+                          isoNumeric: Option[String] = None,
+                          fips: Option[String] = None,
+                          country: Option[String] = None
                         )
 
   case class CameoCode(
-                        cameoCode: String,
-                        cameoValue: String
+                        cameoCode: Option[String] = None,
+                        cameoValue: Option[String] = None
                       )
 
   case class GcamCode(
-                       gcamCode: String = "",
-                       dictionaryId: String = "",
-                       dimensionId: String = "",
-                       dictionaryType: String = "",
-                       languageCode: String = "",
-                       dictionaryHumanName: String = "",
-                       dimensionHumanName: String = "",
-                       dictionaryCitation: String = ""
+                       gcamCode: Option[String] = None,
+                       dictionaryId: Option[String] = None,
+                       dimensionId: Option[String] = None,
+                       dictionaryType: Option[String] = None,
+                       languageCode: Option[String] = None,
+                       dictionaryHumanName: Option[String] = None,
+                       dimensionHumanName: Option[String] = None,
+                       dictionaryCitation: Option[String] = None
                      )
 
   case class Content(
-                      url: String,
+                      url: Option[String] = None,
                       title: Option[String] = None,
                       content: Option[String] = None,
                       description: Option[String] = None,

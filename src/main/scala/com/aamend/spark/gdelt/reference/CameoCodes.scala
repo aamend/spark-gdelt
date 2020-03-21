@@ -1,6 +1,7 @@
 package com.aamend.spark.gdelt.reference
 
 import com.aamend.spark.gdelt.CameoCode
+import com.aamend.spark.gdelt.T
 import org.apache.spark.sql.{Dataset, SparkSession}
 
 import scala.io.Source
@@ -12,8 +13,8 @@ object CameoCodes {
     Source.fromInputStream(this.getClass.getResourceAsStream("cameoEvent.txt"), "UTF-8").getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       CameoCode(
-        cameoCode = tokens(0).toUpperCase(),
-        cameoValue = tokens(1).toLowerCase()
+        cameoCode = T(()=>tokens(0).toUpperCase()),
+        cameoValue = T(()=>tokens(1).toLowerCase())
       )
     }).toDS()
   }
@@ -23,8 +24,8 @@ object CameoCodes {
     Source.fromInputStream(this.getClass.getResourceAsStream("cameoType.txt"), "UTF-8").getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       CameoCode(
-        cameoCode = tokens(0).toUpperCase(),
-        cameoValue = tokens(1).toLowerCase()
+        cameoCode = T(()=>tokens(0).toUpperCase()),
+        cameoValue = T(()=>tokens(1).toLowerCase())
       )
     }).toDS()
   }
@@ -34,8 +35,8 @@ object CameoCodes {
     Source.fromInputStream(this.getClass.getResourceAsStream("cameoGroup.txt"), "UTF-8").getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       CameoCode(
-        cameoCode = tokens(0).toUpperCase(),
-        cameoValue = tokens(1).toLowerCase()
+        cameoCode = T(()=>tokens(0).toUpperCase()),
+        cameoValue = T(()=>tokens(1).toLowerCase())
       )
     }).toDS()
   }
@@ -45,8 +46,8 @@ object CameoCodes {
     Source.fromInputStream(this.getClass.getResourceAsStream("cameoEthnic.txt"), "UTF-8").getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       CameoCode(
-        cameoCode = tokens(0).toUpperCase(),
-        cameoValue = tokens(1).toLowerCase()
+        cameoCode = T(()=>tokens(0).toUpperCase()),
+        cameoValue = T(()=>tokens(1).toLowerCase())
       )
     }).toDS()
   }
@@ -56,8 +57,8 @@ object CameoCodes {
     Source.fromInputStream(this.getClass.getResourceAsStream("cameoReligion.txt"), "UTF-8").getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       CameoCode(
-        cameoCode = tokens(0).toUpperCase(),
-        cameoValue = tokens(1).toLowerCase()
+        cameoCode = T(()=>tokens(0).toUpperCase()),
+        cameoValue = T(()=>tokens(1).toLowerCase())
       )
     }).toDS()
   }
@@ -67,8 +68,8 @@ object CameoCodes {
     Source.fromInputStream(this.getClass.getResourceAsStream("cameoCountry.txt"), "UTF-8").getLines().toSeq.drop(1).map(line => {
       val tokens = line.split("\t")
       CameoCode(
-        cameoCode = tokens(0).toUpperCase(),
-        cameoValue = tokens(1).toLowerCase()
+        cameoCode = T(()=>tokens(0).toUpperCase()),
+        cameoValue = T(()=>tokens(1).toLowerCase())
       )
     }).toDS()
   }
