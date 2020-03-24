@@ -165,41 +165,43 @@ object GdeltParser {
   }
 
   def parseGkg(str: String): GKGEvent = {
+    T(()=>
+      {
+        val values = str.split(DELIMITER, -1)
 
-    val values = str.split(DELIMITER, -1)
-
-    GKGEvent(
-      gkgRecordId = buildGkgRecordId(values(0)),
-      publishDate = buildPublishDate(values(1)),
-      sourceCollectionIdentifier = T(()=>buildSourceCollectionIdentifier(values(2))),
-      sourceCommonName = T(()=>values(3)),
-      documentIdentifier = T(()=>values(4)),
-      counts = T(()=>buildCounts(values(5))).getOrElse(List.empty[Count]),
-      enhancedCounts = T(()=>buildEnhancedCounts(values(6))).getOrElse(List.empty[EnhancedCount]),
-      themes = T(()=>buildThemes(values(7))).getOrElse(List.empty[String]),
-      enhancedThemes = T(()=>buildEnhancedThemes(values(8))).getOrElse(List.empty[EnhancedTheme]),
-      locations = T(()=>buildLocations(values(9))).getOrElse(List.empty[Location]),
-      enhancedLocations = T(()=>buildEnhancedLocations(values(10))).getOrElse(List.empty[EnhancedLocation]),
-      persons = T(()=>buildPersons(values(11))).getOrElse(List.empty[String]),
-      enhancedPersons = T(()=>buildEnhancedPersons(values(12))).getOrElse(List.empty[EnhancedPerson]),
-      organisations = T(()=>buildOrganisations(values(13))).getOrElse(List.empty[String]),
-      enhancedOrganisations = T(()=>buildEnhancedOrganisations(values(14))).getOrElse(List.empty[EnhancedOrganisation]),
-      tone = T(()=>buildTone(values(15))),
-      enhancedDates = T(()=>buildEnhancedDates(values(16))).getOrElse(List.empty[EnhancedDate]),
-      gcams = T(()=>buildGcams(values(17))).getOrElse(List.empty[Gcam]),
-      sharingImage = T(()=>values(18)),
-      relatedImages = T(()=>buildRelatedImages(values(19))).getOrElse(List.empty[String]),
-      socialImageEmbeds = T(()=>buildSocialImageEmbeds(values(20))).getOrElse(List.empty[String]),
-      socialVideoEmbeds = T(()=>buildSocialVideoEmbeds(values(21))).getOrElse(List.empty[String]),
-      quotations = T(()=>buildQuotations(values(22))).getOrElse(List.empty[Quotation]),
-      allNames = T(()=>buildNames(values(23))).getOrElse(List.empty[Name]),
-      amounts = T(()=>buildAmounts(values(24))).getOrElse(List.empty[Amount]),
-      translationInfo = T(()=>buildTranslationInfo(values(25))),
-      extrasXML = T(()=>values(26)),
-      hash = T(()=>sha_256(str)),
-      errors = T(()=>"")
-    )
-
+        GKGEvent(
+          gkgRecordId = buildGkgRecordId(values(0)),
+          publishDate = buildPublishDate(values(1)),
+          sourceCollectionIdentifier = T(()=>buildSourceCollectionIdentifier(values(2))),
+          sourceCommonName = T(()=>values(3)),
+          documentIdentifier = T(()=>values(4)),
+          counts = T(()=>buildCounts(values(5))).getOrElse(List.empty[Count]),
+          enhancedCounts = T(()=>buildEnhancedCounts(values(6))).getOrElse(List.empty[EnhancedCount]),
+          themes = T(()=>buildThemes(values(7))).getOrElse(List.empty[String]),
+          enhancedThemes = T(()=>buildEnhancedThemes(values(8))).getOrElse(List.empty[EnhancedTheme]),
+          locations = T(()=>buildLocations(values(9))).getOrElse(List.empty[Location]),
+          enhancedLocations = T(()=>buildEnhancedLocations(values(10))).getOrElse(List.empty[EnhancedLocation]),
+          persons = T(()=>buildPersons(values(11))).getOrElse(List.empty[String]),
+          enhancedPersons = T(()=>buildEnhancedPersons(values(12))).getOrElse(List.empty[EnhancedPerson]),
+          organisations = T(()=>buildOrganisations(values(13))).getOrElse(List.empty[String]),
+          enhancedOrganisations = T(()=>buildEnhancedOrganisations(values(14))).getOrElse(List.empty[EnhancedOrganisation]),
+          tone = T(()=>buildTone(values(15))),
+          enhancedDates = T(()=>buildEnhancedDates(values(16))).getOrElse(List.empty[EnhancedDate]),
+          gcams = T(()=>buildGcams(values(17))).getOrElse(List.empty[Gcam]),
+          sharingImage = T(()=>values(18)),
+          relatedImages = T(()=>buildRelatedImages(values(19))).getOrElse(List.empty[String]),
+          socialImageEmbeds = T(()=>buildSocialImageEmbeds(values(20))).getOrElse(List.empty[String]),
+          socialVideoEmbeds = T(()=>buildSocialVideoEmbeds(values(21))).getOrElse(List.empty[String]),
+          quotations = T(()=>buildQuotations(values(22))).getOrElse(List.empty[Quotation]),
+          allNames = T(()=>buildNames(values(23))).getOrElse(List.empty[Name]),
+          amounts = T(()=>buildAmounts(values(24))).getOrElse(List.empty[Amount]),
+          translationInfo = T(()=>buildTranslationInfo(values(25))),
+          extrasXML = T(()=>values(26)),
+          hash = T(()=>sha_256(str)),
+          errors = T(()=>"")
+         )
+      }
+     ).getOrElse(GKGEvent())
   }
 
 

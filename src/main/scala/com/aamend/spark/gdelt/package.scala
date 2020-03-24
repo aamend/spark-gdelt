@@ -119,7 +119,7 @@ package object gdelt {
                        quotations: List[Quotation] = List.empty[Quotation],
                        allNames: List[Name] = List.empty[Name],
                        amounts: List[Amount] = List.empty[Amount],
-                       translationInfo: Option[TranslationInfo],
+                       translationInfo: Option[TranslationInfo] = None,
                        extrasXML: Option[String] = None,
                        hash: Option[String] = None,
                        errors: Option[String] = None
