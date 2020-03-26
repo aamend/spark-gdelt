@@ -229,6 +229,7 @@
             <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-shade-plugin</artifactId>
+		<version>3.2.2</version>
 	        <executions>
                     <execution>
                         <phase>package</phase>
@@ -236,6 +237,20 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+			    <artifactSet>
+                                <excludes>
+                                    <exclude>org.slf4j:slf4j-api</exclude>
+                                    <exclude>org.apache.httpcomponents:httpclient</exclude>
+                                    <exclude>org.apache.httpcomponents:httpcore</exclude>
+                                    <exclude>commons-logging:commons-logging</exclude>
+                                    <exclude>commons-codec:commons-codec</exclude>
+                                    <exclude>commons-io:commons-io</exclude>
+                                    <exclude></exclude>
+                                    <exclude>joda-time:joda-time</exclude>
+                                    <exclude>commons-lang:commons-lang</exclude>
+                                    <exclude>com.typesafe.scala-logging:scala-logging_2.11</exclude>
+			        </excludes>
+			    </artifactSet>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                 <mainClass><!-- YOUR_APPLICATION_MAIN_CLASS --></mainClass>
@@ -255,7 +270,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org</pattern>
-                                    <shadedPattern>repackaged.org.jsoup.**</shadedPattern>
+                                    <shadedPattern>repackaged.org</shadedPattern>
                                     <includes>
                                       <include>org.jsoup.**</include>
                                     </includes>
