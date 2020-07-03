@@ -203,6 +203,30 @@ package object gdelt {
                     errors: Option[String] = None
                   )
 
+    case class EventV1(
+                    eventIdV1: Option[Int] = None,
+                    eventDayV1: Option[Date] = None,
+                    actor1CodeV1: Option[ActorV1] = None,
+                    actor2CodeV1: Option[ActorV1] = None,
+                    isRootV1: Option[Boolean] = None,
+                    cameoEventCodeV1: Option[String] = None,
+                    cameoEventBaseCodeV1: Option[String] = None,
+                    cameoEventRootCodeV1: Option[String] = None,
+                    quadClassV1: Option[String] = None,
+                    goldsteinV1: Option[Float] = None,
+                    numMentionsV1: Option[Int] = None,
+                    numSourcesV1: Option[Int] = None,
+                    numArticlesV1: Option[Int] = None,
+                    avgToneV1: Option[Float] = None,
+                    actor1GeoV1: Option[LocationV1] = None,
+                    actor2GeoV1: Option[LocationV1] = None,
+                    eventGeoV1: Option[LocationV1] = None,
+                    dateAddedV1: Option[Date] = None,
+                    sourceUrlV1: Option[String] = None,
+                    hashV1: Option[String] = None,
+                    errorsV1: Option[String] = None
+                  )
+
   /**
     *
     * @param eventId           This is the ID of the event that was mentioned in the article.
@@ -265,6 +289,11 @@ package object gdelt {
                        longitude: Option[Float] = None
                      )
 
+  case class GeoPointV1(
+                       latitudeV1: Option[Float] = None,
+                       longitudeV1: Option[Float] = None
+                     )
+
   /**
     *
     * @param geoType     This field specifies the geographic resolution of the match type and holds one of the following values:
@@ -289,6 +318,15 @@ package object gdelt {
                        adm2Code: Option[String] = None,
                        geoPoint: Option[GeoPoint] = None,
                        featureId: Option[String] = None
+                     )
+
+  case class LocationV1(
+                       geoTypeV1: Option[String] = None,
+                       geoNameV1: Option[String] = None,
+                       countryCodeV1: Option[String] = None,
+                       adm1CodeV1: Option[String] = None,
+                       geoPointV1: Option[GeoPointV1] = None,
+                       featureIdV1: Option[String] = None
                      )
 
   /**
@@ -322,6 +360,19 @@ package object gdelt {
                     cameoType1Code: Option[String] = None,
                     cameoType2Code: Option[String] = None,
                     cameoType3Code: Option[String] = None
+                  )
+
+  case class ActorV1(
+                    cameoRawV1: Option[String] = None,
+                    cameoNameV1: Option[String] = None,
+                    cameoCountryCodeV1: Option[String] = None,
+                    cameoGroupCodeV1: Option[String] = None,
+                    cameoEthnicCodeV1: Option[String] = None,
+                    cameoReligion1CodeV1: Option[String] = None,
+                    cameoReligion2CodeV1: Option[String] = None,
+                    cameoType1CodeV1: Option[String] = None,
+                    cameoType2CodeV1: Option[String] = None,
+                    cameoType3CodeV1: Option[String] = None
                   )
 
   case class Count(
@@ -405,6 +456,16 @@ package object gdelt {
 
     def gdeltEvent(inputPath: String): Dataset[Event] = {
       gdeltEvent(Seq(inputPath): _*)
+    }
+
+    def gdeltEventV1(inputPaths: String*): Dataset[EventV1] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseEventV1)
+    }
+    
+    def gdeltEventV1(inputPath: String): Dataset[EventV1] = {
+      gdeltEventV1(Seq(inputPath): _*)
     }
 
     def gdeltMention(inputPaths: String*): Dataset[Mention] = {

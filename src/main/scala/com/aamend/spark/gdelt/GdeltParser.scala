@@ -23,6 +23,92 @@ object GdeltParser {
     new String(Base64.getEncoder.encode(md.digest(in.getBytes)),"UTF-8") 
   }
 
+  def parseEventV1(str: String): EventV1 = {
+    
+    val tokens = str.split(DELIMITER)
+
+    val actor1CodeV1: ActorV1 = ActorV1(
+      cameoRawV1 = T(()=>tokens(5)),
+      cameoNameV1 = T(()=>tokens(6)),
+      cameoCountryCodeV1 = T(()=>tokens(7)),
+      cameoGroupCodeV1 = T(()=>tokens(8)),
+      cameoEthnicCodeV1 = T(()=>tokens(9)),
+      cameoReligion1CodeV1 = T(()=>tokens(10)),
+      cameoReligion2CodeV1 = T(()=>tokens(11)),
+      cameoType1CodeV1 = T(()=>tokens(12)),
+      cameoType2CodeV1 = T(()=>tokens(13)),
+      cameoType3CodeV1 = T(()=>tokens(14))
+    )
+
+    val actor2CodeV1: ActorV1 = ActorV1(
+      cameoRawV1 = T(()=>tokens(15)),
+      cameoNameV1 = T(()=>tokens(16)),
+      cameoCountryCodeV1 = T(()=>tokens(17)),
+      cameoGroupCodeV1 = T(()=>tokens(18)),
+      cameoEthnicCodeV1 = T(()=>tokens(19)),
+      cameoReligion1CodeV1 = T(()=>tokens(20)),
+      cameoReligion2CodeV1 = T(()=>tokens(21)),
+      cameoType1CodeV1 = T(()=>tokens(22)),
+      cameoType2CodeV1 = T(()=>tokens(23)),
+      cameoType3CodeV1 = T(()=>tokens(24))
+    )
+
+    val actor1GeoPointV1: GeoPointV1 = GeoPointV1(T(()=>tokens(39).toFloat), T(()=>tokens(40).toFloat))
+    val actor2GeoPointV1: GeoPointV1 = GeoPointV1(T(()=>tokens(46).toFloat), T(()=>tokens(47).toFloat))
+    val eventGeoPointV1: GeoPointV1 = GeoPointV1(T(()=>tokens(53).toFloat), T(()=>tokens(54).toFloat))
+
+    val actor1GeoV1: LocationV1 = LocationV1(
+      geoTypeV1 = T(()=>geoType(tokens(35).toInt)),
+      geoNameV1 = T(()=>tokens(36)),
+      countryCodeV1 = T(()=>tokens(37)),
+      adm1CodeV1 = T(()=>tokens(38)),
+      geoPointV1 = T(()=>actor1GeoPointV1),
+      featureIdV1 = T(()=>tokens(41))
+    )
+
+    val actor2GeoV1: LocationV1 = LocationV1(
+      geoTypeV1 = T(()=>geoType(tokens(42).toInt)),
+      geoNameV1 = T(()=>tokens(43)),
+      countryCodeV1 = T(()=>tokens(44)),
+      adm1CodeV1 = T(()=>tokens(45)),
+      geoPointV1 = Some(actor2GeoPointV1),
+      featureIdV1 = T(()=>tokens(48))
+    )
+
+    val eventGeoV1: LocationV1 = LocationV1(
+      geoTypeV1 = T(()=>geoType(tokens(49).toInt)),
+      geoNameV1 = T(()=>tokens(50)),
+      countryCodeV1 = T(()=>tokens(51)),
+      adm1CodeV1 = T(()=>tokens(52)),
+      geoPointV1 = Some(eventGeoPointV1),
+      featureIdV1 = T(()=>tokens(55))
+    )
+
+    EventV1(
+      eventIdV1 = T(()=>tokens(0).toInt),
+      eventDayV1 = T(()=>new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(1)).getTime)),
+      actor1CodeV1 = Some(actor1CodeV1),
+      actor2CodeV1 = Some(actor2CodeV1),
+      isRootV1 = T(()=>tokens(25) == "1"),
+      cameoEventCodeV1 = T(()=>tokens(26)),
+      cameoEventBaseCodeV1 = T(()=>tokens(27)),
+      cameoEventRootCodeV1 = T(()=>tokens(28)),
+      quadClassV1 = T(()=>quadClass(tokens(29).toInt)),
+      goldsteinV1 = T(()=>tokens(30).toFloat),
+      numMentionsV1 = T(()=>tokens(31).toInt),
+      numSourcesV1 = T(()=>tokens(32).toInt),
+      numArticlesV1 = T(()=>tokens(33).toInt),
+      avgToneV1 = T(()=>tokens(34).toFloat),
+      actor1GeoV1 = Some(actor1GeoV1),
+      actor2GeoV1 = Some(actor2GeoV1),
+      eventGeoV1 = Some(eventGeoV1),
+      dateAddedV1 = T(()=>new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(56)).getTime)),
+      sourceUrlV1 = T(()=>tokens(57)),
+      hashV1 = T(()=>sha_256(str)),
+      errorsV1 = T(()=>"")
+    )
+  }
+
   def parseEvent(str: String): Event = {
 
     val tokens = str.split(DELIMITER)
