@@ -150,7 +150,7 @@ object GdeltParser {
       adm1Code = T(()=>tokens(38)),
       adm2Code = T(()=>tokens(39)),
       geoPoint = T(()=>actor1GeoPoint),
-      featureId = T(()=>tokens(40))
+      featureId = T(()=>tokens(42))
     )
 
     val actor2Geo: Location = Location(
