@@ -125,6 +125,22 @@ package object gdelt {
                        errors: Option[String] = None
                      )
 
+  case class GKGEventV1(
+                       publishDateV1: Option[Timestamp] = None,
+                       numArticlesV1: Option[Int] = None,
+                       countsV1: List[CountV1] = List.empty[CountV1],
+                       themesV1: List[String] = List.empty[String],
+                       locationsV1: List[LocationV1] = List.empty[LocationV1],
+                       personsV1: List[String] = List.empty[String],
+                       organisationsV1 : List[String] = List.empty[String],
+                       toneV1: Option[ToneV1] = None,
+                       eventIdsV1: List[Int] = List.empty[Int],
+                       sourcesV1: List[String] = List.empty[String],
+                       sourceUrlsV1: List[String] = List.empty[String],
+                       hashV1: Option[String] = None,
+                       errorsV1: Option[String] = None
+  )
+
   /**
     *
     * @param eventId            Globally unique identifier assigned to each event record that uniquely identifies it in the master dataset.
@@ -382,6 +398,13 @@ package object gdelt {
                     location: Option[Location] = None
                   )
 
+  case class CountV1(
+                    countTypeV1: Option[String] = None,
+                    countV1: Option[Long] = None,
+                    objectTypeV1: Option[String] = None,
+                    locationV1: Option[LocationV1] = None
+  )
+
   case class Tone(
                    tone: Option[Float] = None,
                    positiveScore: Option[Float] = None,
@@ -391,6 +414,15 @@ package object gdelt {
                    selfGroupReferenceDensity: Option[Float] = None,
                    wordCount: Option[Int] = None
                  )
+
+  case class ToneV1(
+                   toneV1: Option[Float] = None,
+                   positiveScoreV1: Option[Float] = None,
+                   negativeScoreV1: Option[Float] = None,
+                   polarityV1: Option[Float] = None,
+                   activityReferenceDensityV1: Option[Float] = None,
+                   selfGroupReferenceDensityV1: Option[Float] = None
+  )
 
   case class EnhancedLocation(
                                location: Option[Location] = None,
@@ -446,6 +478,16 @@ package object gdelt {
 
     def gdeltGkg(inputPath: String): Dataset[GKGEvent] = {
      gdeltGkg(Seq(inputPath): _*)
+    }
+
+    def gdeltGkgV1(inputPaths: String*): Dataset[GKGEventV1] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseGkgV1)
+    }
+
+    def gdeltGkgV1(inputPath: String): Dataset[GKGEventV1] = {
+     gdeltGkgV1(Seq(inputPath): _*)
     }
 
     def gdeltEvent(inputPaths: String*): Dataset[Event] = {

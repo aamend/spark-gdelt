@@ -290,9 +290,36 @@ object GdeltParser {
      ).getOrElse(GKGEvent())
   }
 
+  def parseGkgV1(str: String): GKGEventV1 = {
+    T(() => 
+      {
+        val values = str.split(DELIMITER, -1)
+
+        GKGEventV1(
+          publishDateV1 = buildPublishDateV1(values(0)),
+          numArticlesV1 = T(() => values(1).toInt),
+          countsV1 = T(()=>buildCountsV1(values(2))).getOrElse(List.empty[CountV1]),
+          themesV1 = T(()=>buildThemes(values(3))).getOrElse(List.empty[String]),
+          locationsV1 = T(()=>buildLocationsV1(values(4))).getOrElse(List.empty[LocationV1]),
+          personsV1 = T(()=>buildPersons(values(5))).getOrElse(List.empty[String]),
+          organisationsV1 = T(()=>buildOrganisations(values(6))).getOrElse(List.empty[String]),
+          toneV1 = T(()=>buildToneV1(values(7))),
+          eventIdsV1 = T(() => buildEventIdsV1(values(8))).getOrElse(List.empty[Int]),
+          sourcesV1 = T(() => buildSourcesV1(values(9))).getOrElse(List.empty[String]),
+          sourceUrlsV1 = T(() => buildSourceUrlsV1(values(10))).getOrElse(List.empty[String]),
+          hashV1 = T(() => sha_256(str)),
+          errorsV1 = T(()=>"")
+        )
+      }
+    ).getOrElse(GKGEventV1())
+  }
 
   private def buildPublishDate(str: String): Option[Timestamp] = {
     T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime))
+  }
+
+  private def buildPublishDateV1(str: String): Option[Timestamp] = {
+    T(()=>new Timestamp(new SimpleDateFormat("yyyyMMdd").parse(str).getTime))
   }
 
   private def buildGkgRecordId(str: String): Option[GkgRecordId] = {
@@ -366,6 +393,16 @@ object GdeltParser {
     T(()=>Tone(tone = T(()=>values(0).toFloat), positiveScore = T(()=>values(1).toFloat), negativeScore = T(()=>values(2).toFloat), polarity = T(()=>values(3).toFloat), activityReferenceDensity = T(()=>values(4).toFloat), selfGroupReferenceDensity = T(()=>values(5).toFloat), wordCount = T(()=>values(6).toInt))).getOrElse(Tone())
   }
 
+  private def buildToneV1(str: String): ToneV1 = {
+    val values = str.split(",")
+    T(()=>ToneV1(toneV1 = T(()=>values(0).toFloat),
+                 positiveScoreV1 = T(()=>values(1).toFloat),
+                 negativeScoreV1 = T(()=>values(2).toFloat), 
+                 polarityV1 = T(()=>values(3).toFloat), 
+                 activityReferenceDensityV1 = T(()=>values(4).toFloat), 
+                 selfGroupReferenceDensityV1 = T(()=>values(5).toFloat))).getOrElse(ToneV1())
+  }
+
   private def buildEnhancedOrganisations(str: String): List[EnhancedOrganisation] = {
     str.split(";").map(buildEnhancedOrganisation).filter(_.isDefined).map(_.get).toList
   }
@@ -415,6 +452,18 @@ object GdeltParser {
     }
   }
 
+  private def buildLocationsV1(str: String): List[LocationV1] = {
+    str.split(";").map(buildLocationV1).filter(_.isDefined).map(_.get).toList
+  }
+
+  private def buildLocationV1(str: String): Option[LocationV1] = {
+    val blocks = str.split("#")
+    T {() =>
+      val geoPoint = GeoPointV1(latitudeV1 = T(()=>blocks(4).toFloat), longitudeV1 = T(()=>blocks(5).toFloat))
+      LocationV1(geoTypeV1 = T(()=>geoType(blocks(0).toInt)), geoNameV1 = T(()=>blocks(1)), countryCodeV1 = T(()=>blocks(2)), adm1CodeV1 = T(()=>blocks(3)), geoPointV1 = Some(geoPoint), featureIdV1 = T(()=>blocks(6)))
+    }
+  }
+
   private def buildEnhancedThemes(str: String): List[EnhancedTheme] = {
     str.split(";").map(buildEnhancedTheme).filter(_.isDefined).map(_.get).toList
   }
@@ -450,4 +499,29 @@ object GdeltParser {
     str.split(";").map(buildCount).filter(_.isDefined).map(_.get).toList
   }
 
+  private def buildCountV1(str: String): Option[CountV1] = {
+    val blocks = str.split("#")
+    T {() =>
+      val geoPoint = GeoPointV1(latitudeV1 = T(()=>blocks(7).toFloat), longitudeV1 = T(()=>blocks(8).toFloat))
+      val location = LocationV1(geoTypeV1 = T(()=>geoType(blocks(3).toInt)), geoNameV1 = T(()=>blocks(4)), countryCodeV1 = T(()=>blocks(5)), adm1CodeV1 = T(()=>blocks(6)), geoPointV1 = Some(geoPoint), featureIdV1 = T(()=>blocks(9)))
+      CountV1(countTypeV1 = T(()=>blocks(0)), countV1 = T(()=>blocks(1).toLong), objectTypeV1 = T(()=>blocks(2)), locationV1 = Some(location))
+    }
+  }
+
+  private def buildCountsV1(str: String): List[CountV1] = {
+    str.split(";").map(buildCountV1).filter(_.isDefined).map(_.get).toList
+  }
+
+  private def buildEventIdsV1(str: String): List[Int] = {
+    // def strToInt(s: String): Int = s.toInt
+    str.split(",").map(_.toInt).toList
+  }
+
+  private def buildSourcesV1(str: String): List[String] = {
+    str.split(";").toList
+  }
+
+  private def buildSourceUrlsV1(str: String): List[String] = {
+    str.split("<UDIV>").toList
+  }
 }
