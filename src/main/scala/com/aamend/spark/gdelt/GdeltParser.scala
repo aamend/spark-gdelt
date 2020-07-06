@@ -191,7 +191,7 @@ object GdeltParser {
       actor1Geo = Some(actor1Geo),
       actor2Geo = Some(actor2Geo),
       eventGeo = Some(eventGeo),
-      dateAdded = T(()=>new Date(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(59)).getTime)),
+      dateAdded = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(59)).getTime)),
       sourceUrl = T(()=>tokens(60)),
       hash = T(()=>sha_256(str)),
       errors = T(()=>"")

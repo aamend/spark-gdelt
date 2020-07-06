@@ -213,7 +213,7 @@ package object gdelt {
                     actor1Geo: Option[Location] = None,
                     actor2Geo: Option[Location] = None,
                     eventGeo: Option[Location] = None,
-                    dateAdded: Option[Date] = None,
+                    dateAdded: Option[Timestamp] = None,
                     sourceUrl: Option[String] = None,
                     hash: Option[String] = None,
                     errors: Option[String] = None
