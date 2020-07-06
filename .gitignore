@@ -5,3 +5,4 @@ derby.log
 spark-warehouse
 metastore_db
 .DS_Store
+movejar.sh

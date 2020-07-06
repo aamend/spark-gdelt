@@ -126,17 +126,19 @@ package object gdelt {
                      )
 
   case class GKGEventV1(
-    publishDateV1: Option[Timestamp] = None,
-    numArticlesV1: Option[Int] = None,
-    countsV1: List[CountV1] = List.empty[CountV1],
-    themesV1: List[String] = List.empty[String],
-    locationsV1: List[LocationV1] = List.empty[LocationV1],
-    personsV1: List[String] = List.empty[String],
-    organisationsV1 : List[String] = List.empty[String],
-    toneV1: Option[ToneV1] = None,
-    eventIdsV1: List[Int] = List.empty[Int],
-    sourcesV1: List[String] = List.empty[String],
-    sourceUrlsV1: List[String] = List.empty[String]
+                       publishDateV1: Option[Timestamp] = None,
+                       numArticlesV1: Option[Int] = None,
+                       countsV1: List[CountV1] = List.empty[CountV1],
+                       themesV1: List[String] = List.empty[String],
+                       locationsV1: List[LocationV1] = List.empty[LocationV1],
+                       personsV1: List[String] = List.empty[String],
+                       organisationsV1 : List[String] = List.empty[String],
+                       toneV1: Option[ToneV1] = None,
+                       eventIdsV1: List[Int] = List.empty[Int],
+                       sourcesV1: List[String] = List.empty[String],
+                       sourceUrlsV1: List[String] = List.empty[String],
+                       hashV1: Option[String] = None,
+                       errorsV1: Option[String] = None
   )
 
   /**
