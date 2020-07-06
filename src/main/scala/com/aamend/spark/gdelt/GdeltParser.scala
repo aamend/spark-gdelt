@@ -290,6 +290,14 @@ object GdeltParser {
      ).getOrElse(GKGEvent())
   }
 
+  def parseGkgV1(str: String): GKGEventV1 = {
+    T(() => 
+      {
+        
+      }
+    ).getOrElse(GKGEventV1())
+  }
+
 
   private def buildPublishDate(str: String): Option[Timestamp] = {
     T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime))
