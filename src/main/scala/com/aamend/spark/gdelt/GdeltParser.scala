@@ -109,7 +109,7 @@ object GdeltParser {
     )
   }
 
-  def parseEvent(str: String): Event = {
+  def parseEventV2(str: String): Event = {
 
     val tokens = str.split(DELIMITER)
 
@@ -198,6 +198,25 @@ object GdeltParser {
     )
   }
 
+  def parseNormDaily(str: String): EventNormDaily = {
+    val tokens = str.split(",")
+
+    EventNormDaily(
+      day = T(() => new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(0)).getTime)),
+      eventCount = T(() => tokens(1).toInt)
+    )
+  }
+
+  def parseNormDailyByCountry(str: String): EventNormDailyByCountry = {
+    val tokens = str.split(",")
+
+    EventNormDailyByCountry(
+      day = T(() => new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(0)).getTime)),
+      countryCode = T(() => tokens(1)),
+      eventCount = T(() => tokens(2).toInt)
+    )
+  }
+
   private def quadClass(quadClass: Int): String = quadClass match {
     case 1 => "VERBAL_COOPERATION"
     case 2 => "MATERIAL_COOPERATION"
@@ -215,7 +234,7 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseMention(str: String): Mention = {
+  def parseMentionV2(str: String): Mention = {
 
     val tokens = str.split(DELIMITER)
 
@@ -250,7 +269,7 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseGkg(str: String): GKGEvent = {
+  def parseGkgV2(str: String): GKGEvent = {
     T(()=>
       {
         val values = str.split(DELIMITER, -1)
@@ -355,7 +374,7 @@ object GdeltParser {
   private def buildPublishDateV1(str: String): Option[Timestamp] = {
     T(()=>new Timestamp(new SimpleDateFormat("yyyyMMdd").parse(str).getTime))
   }
-  
+
   private def buildGkgRecordId(str: String): Option[GkgRecordId] = {
     T(() => {
       val split = str.split("-")
