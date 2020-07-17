@@ -93,7 +93,7 @@ package object gdelt {
     * @param hash
     * @param errors
     */
-  case class GKGEvent(
+  case class GKGEventV2(
                        gkgRecordId: Option[GkgRecordId] = None,
                        publishDate: Option[Timestamp] = None,
                        sourceCollectionIdentifier: Option[String] = None,
@@ -204,7 +204,7 @@ package object gdelt {
     * @param hash               This field is a hash digest of the Event input string
     * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
-  case class Event(
+  case class EventV2(
                     eventId: Option[Int] = None,
                     eventDay: Option[Date] = None,
                     actor1Code: Option[Actor] = None,
@@ -296,7 +296,7 @@ package object gdelt {
     * @param hash               This field is a hash digest of the Event input string
     * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
-  case class Mention(
+  case class MentionV2(
                       eventId: Option[Long] = None,
                       eventTime: Option[Timestamp] = None,
                       mentionTime: Option[Timestamp] = None,
@@ -447,13 +447,13 @@ package object gdelt {
 
   implicit class GdeltSpark(dfReader: DataFrameReader) {
 
-    def gdeltGkgV2(inputPaths: String*): Dataset[GKGEvent] = {
+    def gdeltGkgV2(inputPaths: String*): Dataset[GKGEventV2] = {
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseGkgV2)
     }
 
-    def gdeltGkgV2(inputPath: String): Dataset[GKGEvent] = {
+    def gdeltGkgV2(inputPath: String): Dataset[GKGEventV2] = {
      gdeltGkgV2(Seq(inputPath): _*)
     }
 
@@ -497,13 +497,13 @@ package object gdelt {
      gdeltGkgCountV1(Seq(inputPath): _*)
     }
 
-    def gdeltEventV2(inputPaths: String*): Dataset[Event] = {
+    def gdeltEventV2(inputPaths: String*): Dataset[EventV2] = {
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseEventV2)
     }
 
-    def gdeltEventV2(inputPath: String): Dataset[Event] = {
+    def gdeltEventV2(inputPath: String): Dataset[EventV2] = {
       gdeltEventV2(Seq(inputPath): _*)
     }
 
@@ -517,13 +517,13 @@ package object gdelt {
       gdeltEventV1(Seq(inputPath): _*)
     }
 
-    def gdeltMentionV2(inputPaths: String*): Dataset[Mention] = {
+    def gdeltMentionV2(inputPaths: String*): Dataset[MentionV2] = {
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseMentionV2)
     }
 
-    def gdeltMentionV2(inputPath: String): Dataset[Mention] = {
+    def gdeltMentionV2(inputPath: String): Dataset[MentionV2] = {
       gdeltMentionV2(Seq(inputPath): _*)
     }
 
