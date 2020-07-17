@@ -126,19 +126,19 @@ package object gdelt {
                      )
 
   case class GKGEventV1(
-                       publishDateV1: Option[Timestamp] = None,
-                       numArticlesV1: Option[Int] = None,
-                       countsV1: List[CountV1] = List.empty[CountV1],
-                       themesV1: List[String] = List.empty[String],
-                       locationsV1: List[LocationV1] = List.empty[LocationV1],
-                       personsV1: List[String] = List.empty[String],
-                       organisationsV1 : List[String] = List.empty[String],
-                       toneV1: Option[ToneV1] = None,
-                       eventIdsV1: List[Int] = List.empty[Int],
-                       sourcesV1: List[String] = List.empty[String],
-                       sourceUrlsV1: List[String] = List.empty[String],
-                       hashV1: Option[String] = None,
-                       errorsV1: Option[String] = None
+                       publishDate: Option[Timestamp] = None,
+                       numArticles: Option[Int] = None,
+                       counts: List[Count] = List.empty[Count],
+                       themes: List[String] = List.empty[String],
+                       locations: List[Location] = List.empty[Location],
+                       persons: List[String] = List.empty[String],
+                       organisations: List[String] = List.empty[String],
+                       tone: Option[Tone] = None,
+                       eventIds: List[Int] = List.empty[Int],
+                       sources: List[String] = List.empty[String],
+                       sourceUrls: List[String] = List.empty[String],
+                       hash: Option[String] = None,
+                       errors: Option[String] = None
   )
 
   /**
@@ -220,27 +220,27 @@ package object gdelt {
                   )
 
     case class EventV1(
-                    eventIdV1: Option[Int] = None,
-                    eventDayV1: Option[Date] = None,
-                    actor1CodeV1: Option[ActorV1] = None,
-                    actor2CodeV1: Option[ActorV1] = None,
-                    isRootV1: Option[Boolean] = None,
-                    cameoEventCodeV1: Option[String] = None,
-                    cameoEventBaseCodeV1: Option[String] = None,
-                    cameoEventRootCodeV1: Option[String] = None,
-                    quadClassV1: Option[String] = None,
-                    goldsteinV1: Option[Float] = None,
-                    numMentionsV1: Option[Int] = None,
-                    numSourcesV1: Option[Int] = None,
-                    numArticlesV1: Option[Int] = None,
-                    avgToneV1: Option[Float] = None,
-                    actor1GeoV1: Option[LocationV1] = None,
-                    actor2GeoV1: Option[LocationV1] = None,
-                    eventGeoV1: Option[LocationV1] = None,
-                    dateAddedV1: Option[Date] = None,
-                    sourceUrlV1: Option[String] = None,
-                    hashV1: Option[String] = None,
-                    errorsV1: Option[String] = None
+                    eventId: Option[Int] = None,
+                    eventDay: Option[Date] = None,
+                    actor1Code: Option[Actor] = None,
+                    actor2Code: Option[Actor] = None,
+                    isRoot: Option[Boolean] = None,
+                    cameoEventCode: Option[String] = None,
+                    cameoEventBaseCode: Option[String] = None,
+                    cameoEventRootCode: Option[String] = None,
+                    quadClass: Option[String] = None,
+                    goldstein: Option[Float] = None,
+                    numMentions: Option[Int] = None,
+                    numSources: Option[Int] = None,
+                    numArticles: Option[Int] = None,
+                    avgTone: Option[Float] = None,
+                    actor1Geo: Option[Location] = None,
+                    actor2Geo: Option[Location] = None,
+                    eventGeo: Option[Location] = None,
+                    dateAdded: Option[Date] = None,
+                    sourceUrl: Option[String] = None,
+                    hash: Option[String] = None,
+                    errors: Option[String] = None
                   )
 
   /**
@@ -305,11 +305,6 @@ package object gdelt {
                        longitude: Option[Float] = None
                      )
 
-  case class GeoPointV1(
-                       latitudeV1: Option[Float] = None,
-                       longitudeV1: Option[Float] = None
-                     )
-
   /**
     *
     * @param geoType     This field specifies the geographic resolution of the match type and holds one of the following values:
@@ -334,15 +329,6 @@ package object gdelt {
                        adm2Code: Option[String] = None,
                        geoPoint: Option[GeoPoint] = None,
                        featureId: Option[String] = None
-                     )
-
-  case class LocationV1(
-                       geoTypeV1: Option[String] = None,
-                       geoNameV1: Option[String] = None,
-                       countryCodeV1: Option[String] = None,
-                       adm1CodeV1: Option[String] = None,
-                       geoPointV1: Option[GeoPointV1] = None,
-                       featureIdV1: Option[String] = None
                      )
 
   /**
@@ -378,32 +364,12 @@ package object gdelt {
                     cameoType3Code: Option[String] = None
                   )
 
-  case class ActorV1(
-                    cameoRawV1: Option[String] = None,
-                    cameoNameV1: Option[String] = None,
-                    cameoCountryCodeV1: Option[String] = None,
-                    cameoGroupCodeV1: Option[String] = None,
-                    cameoEthnicCodeV1: Option[String] = None,
-                    cameoReligion1CodeV1: Option[String] = None,
-                    cameoReligion2CodeV1: Option[String] = None,
-                    cameoType1CodeV1: Option[String] = None,
-                    cameoType2CodeV1: Option[String] = None,
-                    cameoType3CodeV1: Option[String] = None
-                  )
-
   case class Count(
                     countType: Option[String] = None,
                     count: Option[Long] = None,
                     objectType: Option[String] = None,
                     location: Option[Location] = None
                   )
-
-  case class CountV1(
-                    countTypeV1: Option[String] = None,
-                    countV1: Option[Long] = None,
-                    objectTypeV1: Option[String] = None,
-                    locationV1: Option[LocationV1] = None
-  )
 
   case class Tone(
                    tone: Option[Float] = None,
@@ -414,15 +380,6 @@ package object gdelt {
                    selfGroupReferenceDensity: Option[Float] = None,
                    wordCount: Option[Int] = None
                  )
-
-  case class ToneV1(
-                   toneV1: Option[Float] = None,
-                   positiveScoreV1: Option[Float] = None,
-                   negativeScoreV1: Option[Float] = None,
-                   polarityV1: Option[Float] = None,
-                   activityReferenceDensityV1: Option[Float] = None,
-                   selfGroupReferenceDensityV1: Option[Float] = None
-  )
 
   case class EnhancedLocation(
                                location: Option[Location] = None,
@@ -470,10 +427,22 @@ package object gdelt {
 
   implicit class GdeltSpark(dfReader: DataFrameReader) {
 
-    def gdeltGkg(inputPaths: String*): Dataset[GKGEvent] = {
+    def gdeltGkg(inputPaths: String*): Dataset[GKGEvent] = { //, version: String): Dataset[Row] = {
+      /* val ds = version match {
+        case "V1" => dfReader.option("header",true).textFile(inputPaths:_*)
+        case "V2" => dfReader.textFile(inputPaths:_*)
+        case "Counts" => 
+        case _ => throw new IllegalArgumentException("version can only be 'V1', 'V2' or 'Counts'.")
+      } */
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseGkg)
+      /* version match {
+        case "V1" => ds.map(GdeltParser.parseGkgV1)
+        case "V2" => ds.map(GdeltParser.parseGKG)
+        case "Counts" => ds.map(GdeltParser.parseGKGCounts)
+        case _ => throw new IllegalArgumentException("version can only be 'V1', 'V2' or 'Counts'.")
+      } */
     }
 
     def gdeltGkg(inputPath: String): Dataset[GKGEvent] = {
@@ -481,7 +450,7 @@ package object gdelt {
     }
 
     def gdeltGkgV1(inputPaths: String*): Dataset[GKGEventV1] = {
-      val ds = dfReader.textFile(inputPaths:_*)
+      val ds = dfReader.option("header",true).textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseGkgV1)
     }
