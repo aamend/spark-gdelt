@@ -12,6 +12,7 @@ class GdeltParserTest extends SparkSpec with Matchers {
     Source.fromInputStream(this.getClass.getResourceAsStream("gkg.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseGkg).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("gkgT.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseGkg).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("gkg1.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseGkgV1).show()
+    Source.fromInputStream(this.getClass.getResourceAsStream("gkg1Count.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseGkgCountV1).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("events.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseEvent).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("events1.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseEventV1).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("eventsT.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseEvent).show()

@@ -144,10 +144,10 @@ package object gdelt {
     case class GKGCountV1(
                          publishDate: Option[Timestamp] = None,
                          numArticles: Option[Int] = None,
-                         counts: List[Count] = List.empty[Count],
+                         counts: Option[Count] = None,
                          eventIds: List[Int] = List.empty[Int],
                          sources: List[String] = List.empty[String],
-                         sourceUrls: List[String] = List.empty[String],
+                         sourceUrls: List[String] = List.empty[String]
   )
 
   /**
@@ -467,6 +467,17 @@ package object gdelt {
     def gdeltGkgV1(inputPath: String): Dataset[GKGEventV1] = {
      gdeltGkgV1(Seq(inputPath): _*)
     }
+
+     def gdeltGkgCountV1(inputPaths: String*): Dataset[GKGCountV1] = {
+      val ds = dfReader.option("header",true).textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseGkgCountV1)
+    }
+
+    def gdeltGkgCountV1(inputPath: String): Dataset[GKGCountV1] = {
+     gdeltGkgCountV1(Seq(inputPath): _*)
+    }
+
 
     def gdeltEvent(inputPaths: String*): Dataset[Event] = {
       val ds = dfReader.textFile(inputPaths:_*)

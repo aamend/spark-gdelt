@@ -313,20 +313,39 @@ object GdeltParser {
       }
     ).getOrElse(GKGEventV1())
   }
-  val gkgCountGeoPoint = T(()=>values(9).toFloat), T(()=>values(10).toFloat))
-  val gkgCountLocation = T(() =>)
-  val gkgCountCounts = T(() => values(2)),T(() => values(3)),T(() => values(4))
+ 
   def parseGkgCountV1(str: String): GKGCountV1 = {
     T(() =>
     {
         val values = str.split(DELIMITER, -1)
-        publishDate = buildPublishDateV1(values(0))
-        numArticles = T(() => values(1).toInt)
-      
-
-
-        eventIds = T(() => buildEventIdsV1(values(3))).getOrElse(List.empty[Int]),
-        
+        val gkgCountGeoPoint = GeoPoint(
+                                        latitude = T(()=>values(9).toFloat),
+                                        longitude = T(()=>values(10).toFloat)
+                                        )
+        val gkgCountLocation = Location(
+                                        geoType = T(()=>geoType(values(5).toInt)),
+                                        geoName = T(() => values(6)),
+                                        countryCode = T(() => values(7)),
+                                        adm1Code = T(() => values(8)),
+                                        geoPoint = Some(gkgCountGeoPoint),
+                                        featureId = T(() => values(11))
+                                        )
+        val gkgCountCounts = Count(
+                                    countType = T(() => values(2)),
+                                    count = T(() => values(3).toInt),
+                                    objectType = T(() => values(4)),
+                                    location = Some(gkgCountLocation)
+                                    )
+        GKGCountV1(
+          publishDate = buildPublishDateV1(values(0)),
+          numArticles = T(() => values(1).toInt),
+          counts = Some(gkgCountCounts),
+          eventIds = T(() => buildEventIdsV1(values(12))).getOrElse(List.empty[Int]),
+          sources = T(() => buildSourcesV1(values(13))).getOrElse(List.empty[String]),
+          sourceUrls = T(() => buildSourceUrlsV1(values(14))).getOrElse(List.empty[String])
+        )
+      }
+    ).getOrElse(GKGCountV1())    
   } 
 
   private def buildPublishDate(str: String): Option[Timestamp] = {
@@ -336,7 +355,7 @@ object GdeltParser {
   private def buildPublishDateV1(str: String): Option[Timestamp] = {
     T(()=>new Timestamp(new SimpleDateFormat("yyyyMMdd").parse(str).getTime))
   }
-
+  
   private def buildGkgRecordId(str: String): Option[GkgRecordId] = {
     T(() => {
       val split = str.split("-")
