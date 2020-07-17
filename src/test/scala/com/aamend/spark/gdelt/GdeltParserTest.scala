@@ -17,6 +17,8 @@ class GdeltParserTest extends SparkSpec with Matchers {
     Source.fromInputStream(this.getClass.getResourceAsStream("eventsT.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseEventV2).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("mentions.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseMentionV2).show()
     Source.fromInputStream(this.getClass.getResourceAsStream("mentionsT.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseMentionV2).show()
+    Source.fromInputStream(this.getClass.getResourceAsStream("normDaily.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseNormDaily).show()
+    Source.fromInputStream(this.getClass.getResourceAsStream("normDailyByCountry.csv"), "UTF-8").getLines().toSeq.toDS().map(GdeltParser.parseNormDailyByCountry).show()
   }
 
   // I simply test all my dataframes can be loaded, no exception should be thrown

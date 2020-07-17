@@ -198,6 +198,25 @@ object GdeltParser {
     )
   }
 
+  def parseNormDaily(str: String): EventNormDaily = {
+    val tokens = str.split(",")
+
+    EventNormDaily(
+      day = T(() => new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(0)).getTime)),
+      eventCount = T(() => tokens(1).toInt)
+    )
+  }
+
+  def parseNormDailyByCountry(str: String): EventNormDailyByCountry = {
+    val tokens = str.split(",")
+
+    EventNormDailyByCountry(
+      day = T(() => new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(0)).getTime)),
+      countryCode = T(() => tokens(1)),
+      eventCount = T(() => tokens(2).toInt)
+    )
+  }
+
   private def quadClass(quadClass: Int): String = quadClass match {
     case 1 => "VERBAL_COOPERATION"
     case 2 => "MATERIAL_COOPERATION"
@@ -313,21 +332,6 @@ object GdeltParser {
       }
     ).getOrElse(GKGEventV1())
   }
-  val gkgCountGeoPoint = T(()=>values(9).toFloat), T(()=>values(10).toFloat))
-  val gkgCountLocation = T(() =>)
-  val gkgCountCounts = T(() => values(2)),T(() => values(3)),T(() => values(4))
-  def parseGkgCountV1(str: String): GKGCountV1 = {
-    T(() =>
-    {
-        val values = str.split(DELIMITER, -1)
-        publishDate = buildPublishDateV1(values(0))
-        numArticles = T(() => values(1).toInt)
-      
-
-
-        eventIds = T(() => buildEventIdsV1(values(3))).getOrElse(List.empty[Int]),
-        
-  } 
 
   private def buildPublishDate(str: String): Option[Timestamp] = {
     T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime))
