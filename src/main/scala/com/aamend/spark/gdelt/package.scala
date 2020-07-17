@@ -147,7 +147,7 @@ package object gdelt {
                          counts: List[Count] = List.empty[Count],
                          eventIds: List[Int] = List.empty[Int],
                          sources: List[String] = List.empty[String],
-                         sourceUrls: List[String] = List.empty[String],
+                         sourceUrls: List[String] = List.empty[String]
   )
 
   /**
@@ -250,6 +250,17 @@ package object gdelt {
                     sourceUrl: Option[String] = None,
                     hash: Option[String] = None,
                     errors: Option[String] = None
+                  )
+
+    case class EventNormDaily(
+                    day: Option[Date] = None,
+                    eventCount: Option[Int] = None
+                  )
+
+    case class EventNormDailyByCountry(
+                    day: Option[Date] = None,
+                    countryCode: Option[String] = None,
+                    eventCount: Option[Int] = None
                   )
 
   /**
@@ -456,6 +467,26 @@ package object gdelt {
 
     def gdeltGkgV2(inputPath: String): Dataset[GKGEvent] = {
      gdeltGkgV2(Seq(inputPath): _*)
+    }
+
+    def gdeltNorm(inputPaths: String*): Dataset[EventNormDaily] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseNormDaily)
+    }
+
+    def gdeltNorm(inputPath: String): Dataset[EventNormDaily] = {
+     gdeltNorm(Seq(inputPath): _*)
+    }
+
+    def gdeltNormByCountry(inputPaths: String*): Dataset[EventNormDailyByCountry] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseNormDailyByCountry)
+    }
+
+    def gdeltNormByCountry(inputPath: String): Dataset[EventNormDailyByCountry] = {
+     gdeltNormByCountry(Seq(inputPath): _*)
     }
 
     def gdeltGkgV1(inputPaths: String*): Dataset[GKGEventV1] = {
