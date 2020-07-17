@@ -447,22 +447,10 @@ package object gdelt {
 
   implicit class GdeltSpark(dfReader: DataFrameReader) {
 
-    def gdeltGkgV2(inputPaths: String*): Dataset[GKGEvent] = { //, version: String): Dataset[Row] = {
-      /* val ds = version match {
-        case "V1" => dfReader.option("header",true).textFile(inputPaths:_*)
-        case "V2" => dfReader.textFile(inputPaths:_*)
-        case "Counts" => 
-        case _ => throw new IllegalArgumentException("version can only be 'V1', 'V2' or 'Counts'.")
-      } */
+    def gdeltGkgV2(inputPaths: String*): Dataset[GKGEvent] = {
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
       ds.map(GdeltParser.parseGkgV2)
-      /* version match {
-        case "V1" => ds.map(GdeltParser.parseGkgV1)
-        case "V2" => ds.map(GdeltParser.parseGKG)
-        case "Counts" => ds.map(GdeltParser.parseGKGCounts)
-        case _ => throw new IllegalArgumentException("version can only be 'V1', 'V2' or 'Counts'.")
-      } */
     }
 
     def gdeltGkgV2(inputPath: String): Dataset[GKGEvent] = {
