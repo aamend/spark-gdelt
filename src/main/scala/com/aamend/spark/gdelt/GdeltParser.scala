@@ -109,7 +109,7 @@ object GdeltParser {
     )
   }
 
-  def parseEventV2(str: String): Event = {
+  def parseEventV2(str: String): EventV2 = {
 
     val tokens = str.split(DELIMITER)
 
@@ -173,7 +173,7 @@ object GdeltParser {
       featureId = T(()=>tokens(58))
     )
 
-    Event(
+    EventV2(
       eventId = T(()=>tokens(0).toInt),
       eventDay = T(()=>new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(1)).getTime)),
       actor1Code = Some(actor1Code),
@@ -234,11 +234,11 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseMentionV2(str: String): Mention = {
+  def parseMentionV2(str: String): MentionV2 = {
 
     val tokens = str.split(DELIMITER)
 
-    Mention(
+    MentionV2(
       eventId = T(()=>tokens(0).toLong),
       eventTime = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(1)).getTime)),
       mentionTime = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(2)).getTime)),
@@ -269,12 +269,12 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseGkgV2(str: String): GKGEvent = {
+  def parseGkgV2(str: String): GKGEventV2 = {
     T(()=>
       {
         val values = str.split(DELIMITER, -1)
 
-        GKGEvent(
+        GKGEventV2(
           gkgRecordId = buildGkgRecordId(values(0)),
           publishDate = buildPublishDate(values(1)),
           sourceCollectionIdentifier = T(()=>buildSourceCollectionIdentifier(values(2))),
@@ -306,7 +306,7 @@ object GdeltParser {
           errors = T(()=>"")
          )
       }
-     ).getOrElse(GKGEvent())
+     ).getOrElse(GKGEventV2())
   }
 
   def parseGkgV1(str: String): GKGEventV1 = {
