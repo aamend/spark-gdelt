@@ -109,7 +109,7 @@ object GdeltParser {
     )
   }
 
-  def parseEvent(str: String): Event = {
+  def parseEventV2(str: String): Event = {
 
     val tokens = str.split(DELIMITER)
 
@@ -215,7 +215,7 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseMention(str: String): Mention = {
+  def parseMentionV2(str: String): Mention = {
 
     val tokens = str.split(DELIMITER)
 
@@ -250,7 +250,7 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseGkg(str: String): GKGEvent = {
+  def parseGkgV2(str: String): GKGEvent = {
     T(()=>
       {
         val values = str.split(DELIMITER, -1)
