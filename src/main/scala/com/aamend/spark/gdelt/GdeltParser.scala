@@ -313,6 +313,21 @@ object GdeltParser {
       }
     ).getOrElse(GKGEventV1())
   }
+  val gkgCountGeoPoint = T(()=>values(9).toFloat), T(()=>values(10).toFloat))
+  val gkgCountLocation = T(() =>)
+  val gkgCountCounts = T(() => values(2)),T(() => values(3)),T(() => values(4))
+  def parseGkgCountV1(str: String): GKGCountV1 = {
+    T(() =>
+    {
+        val values = str.split(DELIMITER, -1)
+        publishDate = buildPublishDateV1(values(0))
+        numArticles = T(() => values(1).toInt)
+      
+
+
+        eventIds = T(() => buildEventIdsV1(values(3))).getOrElse(List.empty[Int]),
+        
+  } 
 
   private def buildPublishDate(str: String): Option[Timestamp] = {
     T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime))
@@ -498,19 +513,6 @@ object GdeltParser {
   private def buildCounts(str: String): List[Count] = {
     str.split(";").map(buildCount).filter(_.isDefined).map(_.get).toList
   }
-
-  /* private def buildCountV1(str: String): Option[CountV1] = {
-    val blocks = str.split("#")
-    T {() =>
-      val geoPoint = GeoPointV1(latitudeV1 = T(()=>blocks(7).toFloat), longitudeV1 = T(()=>blocks(8).toFloat))
-      val location = LocationV1(geoTypeV1 = T(()=>geoType(blocks(3).toInt)), geoNameV1 = T(()=>blocks(4)), countryCodeV1 = T(()=>blocks(5)), adm1CodeV1 = T(()=>blocks(6)), geoPointV1 = Some(geoPoint), featureIdV1 = T(()=>blocks(9)))
-      CountV1(countTypeV1 = T(()=>blocks(0)), countV1 = T(()=>blocks(1).toLong), objectTypeV1 = T(()=>blocks(2)), locationV1 = Some(location))
-    }
-  } */
-
-  /* private def buildCountsV1(str: String): List[CountV1] = {
-    str.split(";").map(buildCountV1).filter(_.isDefined).map(_.get).toList
-  } */
 
   private def buildEventIdsV1(str: String): List[Int] = {
     // def strToInt(s: String): Int = s.toInt

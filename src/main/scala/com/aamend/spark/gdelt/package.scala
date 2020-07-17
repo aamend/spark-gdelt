@@ -141,6 +141,15 @@ package object gdelt {
                        errors: Option[String] = None
   )
 
+    case class GKGCountV1(
+                         publishDate: Option[Timestamp] = None,
+                         numArticles: Option[Int] = None,
+                         counts: List[Count] = List.empty[Count],
+                         eventIds: List[Int] = List.empty[Int],
+                         sources: List[String] = List.empty[String],
+                         sourceUrls: List[String] = List.empty[String],
+  )
+
   /**
     *
     * @param eventId            Globally unique identifier assigned to each event record that uniquely identifies it in the master dataset.
