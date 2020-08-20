@@ -305,6 +305,7 @@ val words = model.transform(df)
 
 + 1.0 - Basic parser and reference data
 + 2.0 - Adding Goose library packaged for Spark / Scala 2.11
++ 3.0 - Spark 3.0 and Scala 2.12
 
 ## Authors
 
