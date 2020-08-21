@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <name>gdelt-spark</name>
   <groupId>com.aamend.spark</groupId>
   <artifactId>spark-gdelt</artifactId>
-  <version>3.1-SNAPSHOT</version>
+  <version>3.0-SNAPSHOT</version>
   <url>https://github.com/aamend/spark-gdelt</url>
   <description>Working with GDELT from Spark
   environment</description>
@@ -272,7 +274,7 @@
                   commons-logging:commons-logging</exclude>
                   <exclude>commons-codec:commons-codec</exclude>
                   <exclude>commons-io:commons-io</exclude>
-                  <exclude />
+                  <exclude></exclude>
                   <exclude>joda-time:joda-time</exclude>
                   <exclude>commons-lang:commons-lang</exclude>
                   <exclude>
