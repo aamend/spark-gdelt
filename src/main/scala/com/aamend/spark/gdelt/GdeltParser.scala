@@ -23,7 +23,93 @@ object GdeltParser {
     new String(Base64.getEncoder.encode(md.digest(in.getBytes)),"UTF-8") 
   }
 
-  def parseEvent(str: String): Event = {
+  def parseEventV1(str: String): EventV1 = {
+    
+    val tokens = str.split(DELIMITER)
+
+    val actor1Code: Actor = Actor(
+      cameoRaw = T(()=>tokens(5)),
+      cameoName = T(()=>tokens(6)),
+      cameoCountryCode = T(()=>tokens(7)),
+      cameoGroupCode = T(()=>tokens(8)),
+      cameoEthnicCode = T(()=>tokens(9)),
+      cameoReligion1Code = T(()=>tokens(10)),
+      cameoReligion2Code = T(()=>tokens(11)),
+      cameoType1Code = T(()=>tokens(12)),
+      cameoType2Code = T(()=>tokens(13)),
+      cameoType3Code = T(()=>tokens(14))
+    )
+
+    val actor2Code: Actor = Actor(
+      cameoRaw = T(()=>tokens(15)),
+      cameoName = T(()=>tokens(16)),
+      cameoCountryCode = T(()=>tokens(17)),
+      cameoGroupCode = T(()=>tokens(18)),
+      cameoEthnicCode = T(()=>tokens(19)),
+      cameoReligion1Code = T(()=>tokens(20)),
+      cameoReligion2Code = T(()=>tokens(21)),
+      cameoType1Code = T(()=>tokens(22)),
+      cameoType2Code = T(()=>tokens(23)),
+      cameoType3Code = T(()=>tokens(24))
+    )
+
+    val actor1GeoPoint: GeoPoint = GeoPoint(T(()=>tokens(39).toFloat), T(()=>tokens(40).toFloat))
+    val actor2GeoPoint: GeoPoint = GeoPoint(T(()=>tokens(46).toFloat), T(()=>tokens(47).toFloat))
+    val eventGeoPoint: GeoPoint = GeoPoint(T(()=>tokens(53).toFloat), T(()=>tokens(54).toFloat))
+
+    val actor1Geo: Location = Location(
+      geoType = T(()=>geoType(tokens(35).toInt)),
+      geoName = T(()=>tokens(36)),
+      countryCode = T(()=>tokens(37)),
+      adm1Code = T(()=>tokens(38)),
+      geoPoint = T(()=>actor1GeoPoint),
+      featureId = T(()=>tokens(41))
+    )
+
+    val actor2Geo: Location = Location(
+      geoType = T(()=>geoType(tokens(42).toInt)),
+      geoName = T(()=>tokens(43)),
+      countryCode = T(()=>tokens(44)),
+      adm1Code = T(()=>tokens(45)),
+      geoPoint = Some(actor2GeoPoint),
+      featureId = T(()=>tokens(48))
+    )
+
+    val eventGeo: Location = Location(
+      geoType = T(()=>geoType(tokens(49).toInt)),
+      geoName = T(()=>tokens(50)),
+      countryCode = T(()=>tokens(51)),
+      adm1Code = T(()=>tokens(52)),
+      geoPoint = Some(eventGeoPoint),
+      featureId = T(()=>tokens(55))
+    )
+
+    EventV1(
+      eventId = T(()=>tokens(0).toInt),
+      eventDay = T(()=>new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(1)).getTime)),
+      actor1Code = Some(actor1Code),
+      actor2Code = Some(actor2Code),
+      isRoot = T(()=>tokens(25) == "1"),
+      cameoEventCode = T(()=>tokens(26)),
+      cameoEventBaseCode = T(()=>tokens(27)),
+      cameoEventRootCode = T(()=>tokens(28)),
+      quadClass = T(()=>quadClass(tokens(29).toInt)),
+      goldstein = T(()=>tokens(30).toFloat),
+      numMentions = T(()=>tokens(31).toInt),
+      numSources = T(()=>tokens(32).toInt),
+      numArticles = T(()=>tokens(33).toInt),
+      avgTone = T(()=>tokens(34).toFloat),
+      actor1Geo = Some(actor1Geo),
+      actor2Geo = Some(actor2Geo),
+      eventGeo = Some(eventGeo),
+      dateAdded = T(()=>new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(56)).getTime)),
+      sourceUrl = T(()=>tokens(57)),
+      hash = T(()=>sha_256(str)),
+      errors = T(()=>"")
+    )
+  }
+
+  def parseEventV2(str: String): EventV2 = {
 
     val tokens = str.split(DELIMITER)
 
@@ -64,7 +150,7 @@ object GdeltParser {
       adm1Code = T(()=>tokens(38)),
       adm2Code = T(()=>tokens(39)),
       geoPoint = T(()=>actor1GeoPoint),
-      featureId = T(()=>tokens(40))
+      featureId = T(()=>tokens(42))
     )
 
     val actor2Geo: Location = Location(
@@ -87,7 +173,7 @@ object GdeltParser {
       featureId = T(()=>tokens(58))
     )
 
-    Event(
+    EventV2(
       eventId = T(()=>tokens(0).toInt),
       eventDay = T(()=>new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(1)).getTime)),
       actor1Code = Some(actor1Code),
@@ -105,10 +191,29 @@ object GdeltParser {
       actor1Geo = Some(actor1Geo),
       actor2Geo = Some(actor2Geo),
       eventGeo = Some(eventGeo),
-      dateAdded = T(()=>new Date(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(59)).getTime)),
+      dateAdded = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(59)).getTime)),
       sourceUrl = T(()=>tokens(60)),
       hash = T(()=>sha_256(str)),
       errors = T(()=>"")
+    )
+  }
+
+  def parseNormDaily(str: String): EventNormDaily = {
+    val tokens = str.split(",")
+
+    EventNormDaily(
+      day = T(() => new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(0)).getTime)),
+      eventCount = T(() => tokens(1).toInt)
+    )
+  }
+
+  def parseNormDailyByCountry(str: String): EventNormDailyByCountry = {
+    val tokens = str.split(",")
+
+    EventNormDailyByCountry(
+      day = T(() => new Date(new SimpleDateFormat("yyyyMMdd").parse(tokens(0)).getTime)),
+      countryCode = T(() => tokens(1)),
+      eventCount = T(() => tokens(2).toInt)
     )
   }
 
@@ -129,11 +234,11 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseMention(str: String): Mention = {
+  def parseMentionV2(str: String): MentionV2 = {
 
     val tokens = str.split(DELIMITER)
 
-    Mention(
+    MentionV2(
       eventId = T(()=>tokens(0).toLong),
       eventTime = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(1)).getTime)),
       mentionTime = T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmss").parse(tokens(2)).getTime)),
@@ -164,12 +269,12 @@ object GdeltParser {
     case _ => "UNKNOWN"
   }
 
-  def parseGkg(str: String): GKGEvent = {
+  def parseGkgV2(str: String): GKGEventV2 = {
     T(()=>
       {
         val values = str.split(DELIMITER, -1)
 
-        GKGEvent(
+        GKGEventV2(
           gkgRecordId = buildGkgRecordId(values(0)),
           publishDate = buildPublishDate(values(1)),
           sourceCollectionIdentifier = T(()=>buildSourceCollectionIdentifier(values(2))),
@@ -201,12 +306,73 @@ object GdeltParser {
           errors = T(()=>"")
          )
       }
-     ).getOrElse(GKGEvent())
+     ).getOrElse(GKGEventV2())
   }
 
+  def parseGkgV1(str: String): GKGEventV1 = {
+    T(() => 
+      {
+        val values = str.split(DELIMITER, -1)
+
+        GKGEventV1(
+          publishDate = buildPublishDateV1(values(0)),
+          numArticles = T(() => values(1).toInt),
+          counts = T(()=>buildCounts(values(2))).getOrElse(List.empty[Count]),
+          themes = T(()=>buildThemes(values(3))).getOrElse(List.empty[String]),
+          locations = T(()=>buildLocations(values(4))).getOrElse(List.empty[Location]),
+          persons = T(()=>buildPersons(values(5))).getOrElse(List.empty[String]),
+          organisations = T(()=>buildOrganisations(values(6))).getOrElse(List.empty[String]),
+          tone = T(()=>buildToneV1(values(7))),
+          eventIds = T(() => buildEventIdsV1(values(8))).getOrElse(List.empty[Int]),
+          sources = T(() => buildSourcesV1(values(9))).getOrElse(List.empty[String]),
+          sourceUrls = T(() => buildSourceUrlsV1(values(10))).getOrElse(List.empty[String]),
+          hash = T(() => sha_256(str)),
+          errors = T(()=>"")
+        )
+      }
+    ).getOrElse(GKGEventV1())
+  }
+ 
+  def parseGkgCountV1(str: String): GKGCountV1 = {
+    T(() =>
+    {
+        val values = str.split(DELIMITER, -1)
+        val gkgCountGeoPoint = GeoPoint(
+                                        latitude = T(()=>values(9).toFloat),
+                                        longitude = T(()=>values(10).toFloat)
+                                        )
+        val gkgCountLocation = Location(
+                                        geoType = T(()=>geoType(values(5).toInt)),
+                                        geoName = T(() => values(6)),
+                                        countryCode = T(() => values(7)),
+                                        adm1Code = T(() => values(8)),
+                                        geoPoint = Some(gkgCountGeoPoint),
+                                        featureId = T(() => values(11))
+                                        )
+        val gkgCountCounts = Count(
+                                    countType = T(() => values(2)),
+                                    count = T(() => values(3).toInt),
+                                    objectType = T(() => values(4)),
+                                    location = Some(gkgCountLocation)
+                                    )
+        GKGCountV1(
+          publishDate = buildPublishDateV1(values(0)),
+          numArticles = T(() => values(1).toInt),
+          counts = Some(gkgCountCounts),
+          eventIds = T(() => buildEventIdsV1(values(12))).getOrElse(List.empty[Int]),
+          sources = T(() => buildSourcesV1(values(13))).getOrElse(List.empty[String]),
+          sourceUrls = T(() => buildSourceUrlsV1(values(14))).getOrElse(List.empty[String])
+        )
+      }
+    ).getOrElse(GKGCountV1())    
+  } 
 
   private def buildPublishDate(str: String): Option[Timestamp] = {
     T(()=>new Timestamp(new SimpleDateFormat("yyyyMMddHHmmSS").parse(str).getTime))
+  }
+
+  private def buildPublishDateV1(str: String): Option[Timestamp] = {
+    T(()=>new Timestamp(new SimpleDateFormat("yyyyMMdd").parse(str).getTime))
   }
 
   private def buildGkgRecordId(str: String): Option[GkgRecordId] = {
@@ -280,6 +446,16 @@ object GdeltParser {
     T(()=>Tone(tone = T(()=>values(0).toFloat), positiveScore = T(()=>values(1).toFloat), negativeScore = T(()=>values(2).toFloat), polarity = T(()=>values(3).toFloat), activityReferenceDensity = T(()=>values(4).toFloat), selfGroupReferenceDensity = T(()=>values(5).toFloat), wordCount = T(()=>values(6).toInt))).getOrElse(Tone())
   }
 
+  private def buildToneV1(str: String): Tone = {
+    val values = str.split(",")
+    T(()=>Tone(tone = T(()=>values(0).toFloat),
+                 positiveScore = T(()=>values(1).toFloat),
+                 negativeScore = T(()=>values(2).toFloat), 
+                 polarity = T(()=>values(3).toFloat), 
+                 activityReferenceDensity = T(()=>values(4).toFloat), 
+                 selfGroupReferenceDensity = T(()=>values(5).toFloat))).getOrElse(Tone())
+  }
+
   private def buildEnhancedOrganisations(str: String): List[EnhancedOrganisation] = {
     str.split(";").map(buildEnhancedOrganisation).filter(_.isDefined).map(_.get).toList
   }
@@ -329,6 +505,18 @@ object GdeltParser {
     }
   }
 
+  /* private def buildLocationsV1(str: String): List[LocationV1] = {
+    str.split(";").map(buildLocationV1).filter(_.isDefined).map(_.get).toList
+  }
+
+  private def buildLocationV1(str: String): Option[LocationV1] = {
+    val blocks = str.split("#")
+    T {() =>
+      val geoPoint = GeoPointV1(latitudeV1 = T(()=>blocks(4).toFloat), longitudeV1 = T(()=>blocks(5).toFloat))
+      LocationV1(geoTypeV1 = T(()=>geoType(blocks(0).toInt)), geoNameV1 = T(()=>blocks(1)), countryCodeV1 = T(()=>blocks(2)), adm1CodeV1 = T(()=>blocks(3)), geoPointV1 = Some(geoPoint), featureIdV1 = T(()=>blocks(6)))
+    }
+  } */
+
   private def buildEnhancedThemes(str: String): List[EnhancedTheme] = {
     str.split(";").map(buildEnhancedTheme).filter(_.isDefined).map(_.get).toList
   }
@@ -364,4 +552,16 @@ object GdeltParser {
     str.split(";").map(buildCount).filter(_.isDefined).map(_.get).toList
   }
 
+  private def buildEventIdsV1(str: String): List[Int] = {
+    // def strToInt(s: String): Int = s.toInt
+    str.split(",").map(_.toInt).toList
+  }
+
+  private def buildSourcesV1(str: String): List[String] = {
+    str.split(";").toList
+  }
+
+  private def buildSourceUrlsV1(str: String): List[String] = {
+    str.split("<UDIV>").toList
+  }
 }

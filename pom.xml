@@ -23,6 +23,36 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
         <role>big data scientist</role>
       </roles>
     </developer>
+    <developer>
+      <id>lamastex</id>
+      <name>Raazesh Sainudiin</name>
+      <email>raazesh.sainudiin@gmail.com</email>
+      <organization>lamastex.org</organization>
+      <timezone>0</timezone>
+      <roles>
+        <role>Associate Professor of Mathematics with Specialisation in Data Science and Senior Researcher in Data Science</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>JohannesGraner</id>
+      <name>Johannes Graner</name>
+      <email>johannes.graner@hotmail.com</email>
+      <organization>Combient Competence Centre for Data Engineering Sciences, Department of Mathematics, Uppsala University</organization>
+      <timezone>0</timezone>
+      <roles>
+        <role>Summer Internship in Data Science</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>AlbertNilsson</id>
+      <name>Albert Nilsson</name>
+      <email>albertnilsson1998@gmail.com</email>
+      <organization>Combient Competence Centre for Data Engineering Sciences, Department of Mathematics, Uppsala University</organization>
+      <timezone>0</timezone>
+      <roles>
+        <role>Summer Internship in Data Science</role>
+      </roles>
+    </developer>
   </developers>
   <organization>
     <name>aamend.com</name>

@@ -93,7 +93,7 @@ package object gdelt {
     * @param hash
     * @param errors
     */
-  case class GKGEvent(
+  case class GKGEventV2(
                        gkgRecordId: Option[GkgRecordId] = None,
                        publishDate: Option[Timestamp] = None,
                        sourceCollectionIdentifier: Option[String] = None,
@@ -124,6 +124,31 @@ package object gdelt {
                        hash: Option[String] = None,
                        errors: Option[String] = None
                      )
+
+  case class GKGEventV1(
+                       publishDate: Option[Timestamp] = None,
+                       numArticles: Option[Int] = None,
+                       counts: List[Count] = List.empty[Count],
+                       themes: List[String] = List.empty[String],
+                       locations: List[Location] = List.empty[Location],
+                       persons: List[String] = List.empty[String],
+                       organisations: List[String] = List.empty[String],
+                       tone: Option[Tone] = None,
+                       eventIds: List[Int] = List.empty[Int],
+                       sources: List[String] = List.empty[String],
+                       sourceUrls: List[String] = List.empty[String],
+                       hash: Option[String] = None,
+                       errors: Option[String] = None
+  )
+
+    case class GKGCountV1(
+                         publishDate: Option[Timestamp] = None,
+                         numArticles: Option[Int] = None,
+                         counts: Option[Count] = None,
+                         eventIds: List[Int] = List.empty[Int],
+                         sources: List[String] = List.empty[String],
+                         sourceUrls: List[String] = List.empty[String]
+  )
 
   /**
     *
@@ -179,7 +204,31 @@ package object gdelt {
     * @param hash               This field is a hash digest of the Event input string
     * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
-  case class Event(
+  case class EventV2(
+                    eventId: Option[Int] = None,
+                    eventDay: Option[Date] = None,
+                    actor1Code: Option[Actor] = None,
+                    actor2Code: Option[Actor] = None,
+                    isRoot: Option[Boolean] = None,
+                    cameoEventCode: Option[String] = None,
+                    cameoEventBaseCode: Option[String] = None,
+                    cameoEventRootCode: Option[String] = None,
+                    quadClass: Option[String] = None,
+                    goldstein: Option[Float] = None,
+                    numMentions: Option[Int] = None,
+                    numSources: Option[Int] = None,
+                    numArticles: Option[Int] = None,
+                    avgTone: Option[Float] = None,
+                    actor1Geo: Option[Location] = None,
+                    actor2Geo: Option[Location] = None,
+                    eventGeo: Option[Location] = None,
+                    dateAdded: Option[Timestamp] = None,
+                    sourceUrl: Option[String] = None,
+                    hash: Option[String] = None,
+                    errors: Option[String] = None
+                  )
+
+    case class EventV1(
                     eventId: Option[Int] = None,
                     eventDay: Option[Date] = None,
                     actor1Code: Option[Actor] = None,
@@ -201,6 +250,17 @@ package object gdelt {
                     sourceUrl: Option[String] = None,
                     hash: Option[String] = None,
                     errors: Option[String] = None
+                  )
+
+    case class EventNormDaily(
+                    day: Option[Date] = None,
+                    eventCount: Option[Int] = None
+                  )
+
+    case class EventNormDailyByCountry(
+                    day: Option[Date] = None,
+                    countryCode: Option[String] = None,
+                    eventCount: Option[Int] = None
                   )
 
   /**
@@ -236,7 +296,7 @@ package object gdelt {
     * @param hash               This field is a hash digest of the Event input string
     * @param errors             This field will hold any parsing errors (TODO perhaps via https://typelevel.org/cats/datatypes/validated.html) 
     */
-  case class Mention(
+  case class MentionV2(
                       eventId: Option[Long] = None,
                       eventTime: Option[Timestamp] = None,
                       mentionTime: Option[Timestamp] = None,
@@ -387,34 +447,84 @@ package object gdelt {
 
   implicit class GdeltSpark(dfReader: DataFrameReader) {
 
-    def gdeltGkg(inputPaths: String*): Dataset[GKGEvent] = {
+    def gdeltGkgV2(inputPaths: String*): Dataset[GKGEventV2] = {
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
-      ds.map(GdeltParser.parseGkg)
+      ds.map(GdeltParser.parseGkgV2)
     }
 
-    def gdeltGkg(inputPath: String): Dataset[GKGEvent] = {
-     gdeltGkg(Seq(inputPath): _*)
+    def gdeltGkgV2(inputPath: String): Dataset[GKGEventV2] = {
+     gdeltGkgV2(Seq(inputPath): _*)
     }
 
-    def gdeltEvent(inputPaths: String*): Dataset[Event] = {
+    def gdeltNorm(inputPaths: String*): Dataset[EventNormDaily] = {
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
-      ds.map(GdeltParser.parseEvent)
+      ds.map(GdeltParser.parseNormDaily)
     }
 
-    def gdeltEvent(inputPath: String): Dataset[Event] = {
-      gdeltEvent(Seq(inputPath): _*)
+    def gdeltNorm(inputPath: String): Dataset[EventNormDaily] = {
+     gdeltNorm(Seq(inputPath): _*)
     }
 
-    def gdeltMention(inputPaths: String*): Dataset[Mention] = {
+    def gdeltNormByCountry(inputPaths: String*): Dataset[EventNormDailyByCountry] = {
       val ds = dfReader.textFile(inputPaths:_*)
       import ds.sparkSession.implicits._
-      ds.map(GdeltParser.parseMention)
+      ds.map(GdeltParser.parseNormDailyByCountry)
     }
 
-    def gdeltMention(inputPath: String): Dataset[Mention] = {
-      gdeltMention(Seq(inputPath): _*)
+    def gdeltNormByCountry(inputPath: String): Dataset[EventNormDailyByCountry] = {
+     gdeltNormByCountry(Seq(inputPath): _*)
+    }
+
+    def gdeltGkgV1(inputPaths: String*): Dataset[GKGEventV1] = {
+      val ds = dfReader.option("header",true).textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseGkgV1)
+    }
+
+    def gdeltGkgV1(inputPath: String): Dataset[GKGEventV1] = {
+     gdeltGkgV1(Seq(inputPath): _*)
+    }
+
+     def gdeltGkgCountV1(inputPaths: String*): Dataset[GKGCountV1] = {
+      val ds = dfReader.option("header",true).textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseGkgCountV1)
+    }
+
+    def gdeltGkgCountV1(inputPath: String): Dataset[GKGCountV1] = {
+     gdeltGkgCountV1(Seq(inputPath): _*)
+    }
+
+    def gdeltEventV2(inputPaths: String*): Dataset[EventV2] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseEventV2)
+    }
+
+    def gdeltEventV2(inputPath: String): Dataset[EventV2] = {
+      gdeltEventV2(Seq(inputPath): _*)
+    }
+
+    def gdeltEventV1(inputPaths: String*): Dataset[EventV1] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseEventV1)
+    }
+    
+    def gdeltEventV1(inputPath: String): Dataset[EventV1] = {
+      gdeltEventV1(Seq(inputPath): _*)
+    }
+
+    def gdeltMentionV2(inputPaths: String*): Dataset[MentionV2] = {
+      val ds = dfReader.textFile(inputPaths:_*)
+      import ds.sparkSession.implicits._
+      ds.map(GdeltParser.parseMentionV2)
+    }
+
+    def gdeltMentionV2(inputPath: String): Dataset[MentionV2] = {
+      gdeltMentionV2(Seq(inputPath): _*)
     }
 
   }
