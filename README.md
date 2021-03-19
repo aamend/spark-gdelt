@@ -1,5 +1,13 @@
 # Gdelt Spark
 
+How to cite this work:
+
+- Aamend, Graner, Nilsson and Sainudiin (2020-2021). A Scalable Library for GDELT: the Global Database of Events, Language and Tone. https://github.com/lamastex/spark-gdelt/
+
+Many thanks to Andrew Morgan and Antoinne Amend. The work in 2020 was partly supported by Combient Mix AB through Data Engineering Science Summer Internships.
+
+This library was started and primarily maintained by Antoine Aamend at https://github.com/aamend/spark-gdelt/.
+
 [![Build Status](https://travis-ci.org/aamend/gdelt-spark.svg?branch=master)](https://travis-ci.org/aamend/spark-gdelt) 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark/spark-gdelt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark.spark-gdelt)
 
