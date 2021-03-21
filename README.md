@@ -2,7 +2,7 @@
 
 How to cite this work:
 
-- Antoine Amend, Johannes Graner, Albert Nilsson and Razeesh Sainudiin (2020-2021). A Scalable Library for GDELT: the Global Database of Events, Language and Tone. https://github.com/lamastex/spark-gdelt/
+- Antoine Amend, Johannes Graner, Albert Nilsson and Raazesh Sainudiin (2020-2021). A Scalable Library for GDELT: the Global Database of Events, Language and Tone. https://github.com/lamastex/spark-gdelt/
 
 Many thanks to Andrew Morgan and Antoine Amend. The work in 2020 was partly supported by Combient Mix AB through Data Engineering Science Summer Internships.
 
