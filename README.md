@@ -6,7 +6,7 @@ How to cite this work:
 
 Many thanks to Andrew Morgan and Antoine Amend. The work in 2020 was partly supported by Combient Mix AB through Data Engineering Science Summer Internships.
 
-This library was started and primarily maintained by Antoine Aamend at https://github.com/aamend/spark-gdelt/.
+This library was started and primarily maintained by Antoine Amend at https://github.com/aamend/spark-gdelt/.
 
 [![Build Status](https://travis-ci.org/aamend/gdelt-spark.svg?branch=master)](https://travis-ci.org/aamend/spark-gdelt) 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark/spark-gdelt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark.spark-gdelt)
