@@ -10,10 +10,17 @@
 This work was partially supported by the Wallenberg AI, Autonomous Systems and Software Program (WASP) funded by the Knut and Alice Wallenberg Foundation.
 The work in 2020 was partly supported by Combient Mix AB through Data Engineering Science Summer Internships.
 
-This library was started and primarily maintained by Antoine Amend at https://github.com/aamend/spark-gdelt/.
+Many thanks to Andrew Morgan and Antoine Amend. 
+
+## Maintained Library and this Fork
+
+This library was started and primarily maintained by Antoine Amend at [com.aamend.spark-gdelt](https://github.com/aamend/spark-gdelt/).
 
 [![Build Status](https://travis-ci.org/aamend/gdelt-spark.svg?branch=master)](https://travis-ci.org/aamend/spark-gdelt) 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark/spark-gdelt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aamend.spark.spark-gdelt)
+
+This fork at [org.lamastex.spark-gdelt](https://github.com/lamastex/spark-gdelt) is used for research and development. 
+Stable features will be reviewed and merged to [com.aamend.spark-gdelt](https://github.com/aamend/spark-gdelt/) periodically.
 
 ## GDELT (global database of events language and tone)
 
@@ -32,11 +39,14 @@ Most of the documents are collated here for convenience:
 
 * [https://github.com/lamastex/spark-gdelt-examples/tree/master/gdelt-docs](https://github.com/lamastex/spark-gdelt-examples/tree/master/gdelt-docs).
 
-## gdelt-spark
+## Abstract of gdelt-spark
 
 This project has been built to make [GDELT v2](https://blog.gdeltproject.org/gdelt-2-0-our-global-world-in-realtime/) environment easy to load on a Spark based environment. 
 While the `v1.0` version only came with a GDELT data model (case classes), a set of parsers and all its reference data, `v2.0` embeds the [Goose](https://github.com/GravityLabs/goose/wiki) library packaged for `Scala 2.11`/`Spark 2.x` and updated for `Scala 2.12` and Spark 3.x. 
 This library can be enriched with AI and advance analytics using other libraries in the Apache Spark eco-system. 
+
+The delivered big-data AI/analytics use-case with the library is the creation of [delta lakes](https://delta.io/) for scalable batch and stream processing with both versions of the three main GDELT datasets (for `English` and `trans-lingual`).
+
 
 ### Getting Started
 
