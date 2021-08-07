@@ -18,6 +18,7 @@ trait SparkSpec extends FunSuite {
         .appName(name)
         .master("local")
         .config("spark.default.parallelism", "1")
+        .config("spark.testing.memory", "500000000")
         .getOrCreate()
 
       try {
