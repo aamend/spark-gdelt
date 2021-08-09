@@ -18,7 +18,7 @@ class ContentFetcherTest extends SparkSpec with Matchers {
       .setImagemagickIdentify("/usr/local/bin/identify")
 
     val contentDF = contentFetcher.transform(gdeltDf)
-    contentDF.show(false)
+    contentDF.show()
   }
 
 }
