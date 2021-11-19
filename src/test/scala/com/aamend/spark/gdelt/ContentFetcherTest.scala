@@ -1,9 +1,11 @@
 package com.aamend.spark.gdelt
 
 import org.apache.spark.ml.Pipeline
-import org.scalatest.Matchers
+import org.scalatest._
+import flatspec._
+import matchers._
 
-class ContentFetcherTest extends SparkSpec with Matchers {
+class ContentFetcherTest extends SparkSpec with should.Matchers {
 
   sparkTest("testing E2E pipeline") { spark =>
 

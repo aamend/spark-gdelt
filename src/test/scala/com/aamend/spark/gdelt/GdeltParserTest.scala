@@ -1,10 +1,12 @@
 package com.aamend.spark.gdelt
 
-import org.scalatest.Matchers
+import org.scalatest._
+import flatspec._
+import matchers._
 
 import scala.io.Source
 
-class GdeltParserTest extends SparkSpec with Matchers {
+class GdeltParserTest extends SparkSpec with should.Matchers {
 
   //   I simply test all my dataframes can be loaded, no exception should be thrown
   sparkTest("loading GDELT universe") { spark =>

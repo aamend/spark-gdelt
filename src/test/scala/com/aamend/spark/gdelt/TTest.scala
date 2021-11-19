@@ -1,8 +1,10 @@
 package com.aamend.spark.gdelt
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
 
-class TTest extends FlatSpec with Matchers {
+class TTest extends AnyFlatSpec with should.Matchers {
 
   "null" should "return None" in {
     T(()=>null) should be(None)
